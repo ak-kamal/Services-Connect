@@ -6,7 +6,7 @@ import axios from 'axios';  // Make sure axios is installed
 
 const NidUpload = () => {
   const [frontImage, setFrontImage] = useState(null);  // State for front image
-  const [backImage, setBackImage] = useState(null);    // State for back image
+  //const [backImage, setBackImage] = useState(null);    // State for back image
   const [loading, setLoading] = useState(false);       // Loading state to show the button as 'processing'
   const navigate = useNavigate();  // React Router for navigation
 
@@ -25,15 +25,15 @@ const NidUpload = () => {
     e.preventDefault();
 
     // Validate that both images are uploaded
-    if (!frontImage || !backImage) {
-      alert("Please upload both front and back images of the NID.");
+    if (!frontImage) {
+      alert("Please upload the front image of the NID.");
       return;
     }
 
     // Create FormData object to send files as multipart/form-data
     const formData = new FormData();
     formData.append("nidFront", frontImage); // Add front image
-    formData.append("nidBack", backImage);   // Add back image
+    //formData.append("nidBack", backImage);   // Add back image
 
     try {
       setLoading(true);  // Show loading state (e.g., disable button)
@@ -62,7 +62,7 @@ const NidUpload = () => {
 
   return (
     <div className="max-w-lg mx-auto mt-10">
-      <h2 className="text-xl mb-4">Upload NID Images</h2>
+      <h2 className="text-xl mb-4">Upload NID Image</h2>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <div className="mb-4">
           <label className="label">NID Front Image</label>
@@ -76,7 +76,7 @@ const NidUpload = () => {
           />
         </div>
 
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label className="label">NID Back Image</label>
           <input
             type="file"
@@ -86,10 +86,10 @@ const NidUpload = () => {
             accept="image/*"
             required
           />
-        </div>
+        </div> */}
 
         <button type="submit" className="btn btn-primary w-full" disabled={loading}>
-          {loading ? "Processing..." : "Upload and Extract Data"}
+          {loading ? "Processing..." : "Submit"}
         </button>
       </form>
     </div>

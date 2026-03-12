@@ -22,4 +22,4 @@ const upload = multer({
 });
 
 // Export to use in routes
-export default upload.fields([{ name: 'nidFront', maxCount: 1 }, { name: 'nidBack', maxCount: 1 }]);
+export default upload.fields([{ name: 'nidFront', maxCount: 1 }]);
