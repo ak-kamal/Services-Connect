@@ -11,10 +11,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/auth', authRouter);
+//app.use('/auth', authRouter);
+app.use("/api/auth", authRouter);
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 })
+
+// backend/index.js
+app.use(cors({
+  origin: 'http://localhost:5173',  // Frontend URL (make sure it's correct)
+}));

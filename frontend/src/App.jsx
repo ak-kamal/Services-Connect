@@ -1,17 +1,18 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
-import { useState } from 'react'
-import Home from './pages/Home'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
-import ProviderProfile from './pages/ProviderProfile'
-import RefreshHandler from './components/RefreshHandler'
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { useState } from 'react';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import ProviderProfile from './pages/ProviderProfile';
+import NidUpload from './pages/NidUpload';  // Import the NidUpload page
+import RefreshHandler from './components/RefreshHandler';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const PrivateRoute = ({ element }) => {
-    return isAuthenticated ? element : <Navigate to="/login" />
-  }
+    return isAuthenticated ? element : <Navigate to="/login" />;
+  };
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -21,13 +22,14 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/nid-upload" element={<NidUpload />} />  {/* Add route for NID upload */}
         <Route
           path="/provider-profile"
           element={<PrivateRoute element={<ProviderProfile />} />}
         />
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
