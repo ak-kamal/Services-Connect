@@ -6,7 +6,7 @@ const signupValidation = (req, res, next) => {
         email: Joi.string().email().required(),
         password: Joi.string().min(6).max(100).required(),
         role: Joi.string()
-            .valid("customer", "electrician", "plumber", "carpenter", "driver")
+            .valid("customer", "electrician", "plumber", "carpenter", "house maid")
             .required(),
     });
 
