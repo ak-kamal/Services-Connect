@@ -19,10 +19,10 @@ const Signup = () => {
     const extractedData = JSON.parse(sessionStorage.getItem("nidData"));
     
     if (extractedData) {
-      console.log(extractedData.dateOfBirth, extractedData.name);
+      console.log(extractedData.formattedDate, extractedData.name);
       setFormData({
         name: extractedData.name,
-        dateOfBirth: extractedData.dateOfBirth,
+        dateOfBirth: extractedData.formattedDate,
         address: extractedData.address,
         email: "", // User will enter email
         password: "",
