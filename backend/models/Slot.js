@@ -7,6 +7,10 @@ const slotSchema = new mongoose.Schema({
     ref: 'User', // Reference to the provider (User model)
     required: true,
   },
+  date: {
+    type: Date,
+    required: true,
+  },
   time: {
     type: String, // Format: '8:00 AM - 12:00 PM'
     required: true,

@@ -1,13 +1,24 @@
 // frontend/src/components/ProviderCard.jsx
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function ProviderCard({ provider }) {
   const [isAvailable, setIsAvailable] = useState(true);
+  const navigate = useNavigate();
+
+  // Check if the user is logged in by checking for a token in localStorage
+  const isLoggedIn = localStorage.getItem('token') !== null;
 
   const handleCheckAvailability = () => {
     console.log(`Checking availability for ${provider.name}`);
-    // You can implement navigation to provider profile here
+
+    // If user is logged in, redirect to provider booking page
+    if (isLoggedIn) {
+      navigate(`/provider-booking/${provider._id}`);
+    } else {
+      // If user is not logged in, redirect to login page
+      navigate('/login');
+    }
   };
 
   return (

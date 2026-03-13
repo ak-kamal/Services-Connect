@@ -2,30 +2,48 @@
 import express from 'express';
 import UserModel from '../models/User.js';
 import Offer from '../models/Offer.js';
-
+import Slot from '../models/Slot.js';  // Import Slot model to get the slot details
 
 const offerRouter = express.Router(); //previous
 
-
 // POST /api/offer - Create an offer from customer to provider
 offerRouter.post('/offer', async (req, res) => {
-  const { providerId, customerId, timeSlot } = req.body;
+  const { providerId, customerId, timeSlot, date } = req.body;
 
   try {
-    // Make sure customer and provider exist in the database (check by role, etc.)
+    // Ensure customer and provider exist
     const provider = await UserModel.findById(providerId);
     const customer = await UserModel.findById(customerId);
-    
+
+    if (!provider || !customer) {
+      return res.status(404).json({ success: false, message: 'Provider or Customer not found' });
+    }
+
+    // Check if the slot is available (unbooked)
+    const slot = await Slot.findOne({ providerId, time: timeSlot, date });
+    if (!slot) {
+      return res.status(404).json({ success: false, message: 'Slot not found' });
+    }
+
+    if (slot.booked) {
+      return res.status(400).json({ success: false, message: 'Slot is already booked' });
+    }
 
     // Create a new offer
     const newOffer = new Offer({
       providerId,
       customerId,
       timeSlot,
+      date,
       status: 'Pending',
     });
 
+    // Save the offer
     await newOffer.save();
+
+    // Update the slot to booked
+    slot.booked = true;
+    await slot.save();
 
     res.status(200).json({ success: true, message: 'Offer sent successfully' });
   } catch (error) {

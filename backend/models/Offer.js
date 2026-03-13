@@ -12,7 +12,10 @@ const offerSchema = new mongoose.Schema({
     ref: 'User',  // Reference to the customer (User model)
     required: true 
   },
-
+  date: {
+    type: Date,
+    required: true,
+  },
   timeSlot: { 
     type: String, 
     required: true 
