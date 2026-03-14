@@ -8,10 +8,14 @@ const signupValidation = (req, res, next) => {
         role: Joi.string()
             .valid("customer", "electrician", "plumber", "carpenter", "driver")
             .required(),
+        dateOfBirth: Joi.string().required(),
+  nidImageUrl: Joi.string().uri().required(),
+  nidImagePublicId: Joi.string().required(),
     });
 
     const { error } = schema.validate(req.body);
     if (error) {
+        console.error("Signup validation error:", error);
         return res.status(400).json({ message: "Bad request", error });
     }
 

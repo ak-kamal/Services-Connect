@@ -15,6 +15,15 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    nidImageUrl: {
+  type: String,
+},
+nidImagePublicId: {
+  type: String,
+},
+dateOfBirth: {
+  type: String,
+},
     role: {
         type: String,
         required: true,

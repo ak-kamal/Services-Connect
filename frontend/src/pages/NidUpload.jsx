@@ -39,7 +39,7 @@ const NidUpload = () => {
       setLoading(true);  // Show loading state (e.g., disable button)
 
       // Send the files to the backend for processing using axios
-      const response = await axios.post("http://localhost:5000/api/auth/extract-nid", formData, {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/extract-nid`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -47,9 +47,22 @@ const NidUpload = () => {
 
       // If the response is successful, store extracted data and navigate to Signup page
       if (response.data.success) {
-        sessionStorage.setItem("nidData", JSON.stringify(response.data.data));  // Save extracted data in sessionStorage
-        navigate("/signup");  // Redirect to the Signup page
-      } else {
+
+  const data = response.data.data;
+  console.log("Extracted Data:", data); // Log the extracted data for debugging
+
+  sessionStorage.setItem(
+    "nidData",
+    JSON.stringify({
+      name: data.name,
+      dateOfBirth: data.dateOfBirth,
+      nidImageUrl: data.nidImageUrl,
+      nidImagePublicId: data.nidImagePublicId,
+    })
+  );
+
+  navigate("/signup");  // Navigate to the Signup page after successful extraction
+} else {
         alert("Failed to extract NID details. Try again.");
       }
     } catch (error) {

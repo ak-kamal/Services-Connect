@@ -1,15 +1,19 @@
 // src/pages/Signup.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer } from 'react-toastify'
+import { handleError, handleSuccess } from "../utils";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: "",
     dateOfBirth: "",
-    address: "",
+    //address: "",
     email: "",
     password: "",
     role: "customer",
+    nidImageUrl: "",
+    nidImagePublicId: "",
   });
 
   const navigate = useNavigate();
@@ -19,14 +23,16 @@ const Signup = () => {
     const extractedData = JSON.parse(sessionStorage.getItem("nidData"));
     
     if (extractedData) {
-      console.log(extractedData.formattedDate, extractedData.name);
+      console.log(extractedData.dateOfBirth, extractedData.name);
       setFormData({
         name: extractedData.name,
-        dateOfBirth: extractedData.formattedDate,
-        address: extractedData.address,
+        dateOfBirth: extractedData.dateOfBirth,
+        //address: extractedData.address,
         email: "", // User will enter email
         password: "",
         role: "customer", // Default role, you can change it if needed
+        nidImageUrl: extractedData.nidImageUrl,
+        nidImagePublicId: extractedData.nidImagePublicId,
       });
     } else {
       navigate("/nid-upload");  // If there's no NID data, redirect to NID upload
@@ -54,10 +60,13 @@ const Signup = () => {
     const { success, message } = result;
 
     if (success) {
-      alert(message);
-      // You can add redirection or further steps here (like navigating to dashboard)
+      //alert(message);
+      handleSuccess(message);
+      setTimeout(() => {
+          navigate("/login");  // Redirect to login page after successful signup
+        }, 1000)
     } else {
-      alert(message || "Signup failed");
+      handleError("Signup failed. Please try again.");  // Show error message
     }
   };
 
@@ -90,7 +99,7 @@ const Signup = () => {
           />
         </div>
 
-        <div className="form-control">
+        {/* <div className="form-control">
           <label className="label">Address</label>
           <input
             type="text"
@@ -101,7 +110,7 @@ const Signup = () => {
             className="input input-bordered w-full"
             required
           />
-        </div>
+        </div> */}
 
         <div className="form-control">
           <label className="label">Email</label>
@@ -149,6 +158,7 @@ const Signup = () => {
           Sign Up
         </button>
       </form>
+      <ToastContainer />
     </div>
   );
 };

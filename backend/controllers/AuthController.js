@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 const signup = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, dateOfBirth, nidImageUrl, nidImagePublicId } = req.body;
 
         const user = await UserModel.findOne({ email });
         if (user) {
@@ -14,7 +14,7 @@ const signup = async (req, res) => {
             });
         }
 
-        const userModel = new UserModel({ name, email, password, role });
+        const userModel = new UserModel({ name, email, password, role, dateOfBirth, nidImageUrl, nidImagePublicId });
         userModel.password = await bcrypt.hash(password, 10);
 
         await userModel.save();
