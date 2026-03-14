@@ -8,7 +8,7 @@ import authRouter from "./routes/AuthRoutes.js";
 import providerRouter from "./routes/ProviderRoutes.js";
 import offerRouter from "./routes/offerRoutes.js";
 import slotRouter from './routes/slotRoutes.js';
-
+import chatRouter from "./routes/chatRoutes.js";
 
 dotenv.config();
 
@@ -21,6 +21,7 @@ app.use('/auth', authRouter);
 app.use('/api', providerRouter); // Add this line to use providerRouter for /api routes as well
 app.use('/api', offerRouter);
 app.use('/api', slotRouter);
+app.use("/api", chatRouter);
 
 const PORT = process.env.PORT || 5000;
 

@@ -7,6 +7,7 @@ import Signup from './pages/Signup'
 import ProviderProfile from './pages/ProviderProfile'
 import ProviderBooking from './pages/ProviderBooking'  // Import the new ProviderBooking page
 import RefreshHandler from './components/RefreshHandler'
+import ChatWidget from "./components/ChatWidget";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -26,6 +27,8 @@ function App() {
         <Route path="/provider-profile" element={<PrivateRoute element={<ProviderProfile />} />} />
         <Route path="/provider-booking/:providerId" element={<PrivateRoute element={<ProviderBooking />} />} /> {/* Add the new route */}
       </Routes>
+
+      <ChatWidget />
     </div>
   )
 }
