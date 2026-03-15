@@ -1,8 +1,8 @@
 import express from "express";
-import { chatWithBot } from "../controllers/ChatController.js";
+import { chatWithAI } from "../controllers/chatController.js";
 
-const router = express.Router();
+const chatRouter = express.Router();
 
-router.post("/chat", chatWithBot);
+chatRouter.post("/chat", chatWithAI);
 
-export default router;
+export default chatRouter;

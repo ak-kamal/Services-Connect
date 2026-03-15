@@ -1,107 +1,47 @@
-import OpenAI from "openai";
-import UserModel from "../models/User.js";
-import Slot from "../models/Slot.js";
+import Groq from "groq-sdk";
 
-const client = new OpenAI({
-  apiKey: process.env.GROK_API_KEY,
-  baseURL: "https://api.x.ai/v1"
+const groq = new Groq({
+  apiKey: process.env.GROK_API_KEY
 });
 
-export const chatWithBot = async (req, res) => {
-
-  const { message } = req.body;
-
+export const chatWithAI = async (req, res) => {
   try {
 
-    const completion = await client.chat.completions.create({
-      model: "llama3-8b-8192",
+    const { message } = req.body;
 
+    const completion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
-          content:
-            "You are an assistant for a home service platform. You can search providers and check slot availability."
+          content: `
+You are the AI assistant for ServiceConnect, a platform that connects customers with service providers.
+
+Your responsibilities:
+- Help users find services such as plumbing, electrical work, cleaning, tutoring, etc.
+- Guide users on how to book a service.
+- Answer questions about pricing, scheduling, and providers.
+- Be concise and friendly.
+
+Important rules:
+- Do not talk about being a large language model.
+- Do not answer unrelated questions.
+- If the question is unrelated to services on this platform, politely redirect the user back to services.
+`
         },
         {
           role: "user",
           content: message
         }
       ],
-
-      tools: [
-        {
-          type: "function",
-          function: {
-            name: "searchProviders",
-            description: "Search providers by role like electrician, plumber, carpenter",
-            parameters: {
-              type: "object",
-              properties: {
-                role: {
-                  type: "string"
-                }
-              },
-              required: ["role"]
-            }
-          }
-        },
-        {
-          type: "function",
-          function: {
-            name: "checkSlots",
-            description: "Check available time slots for a provider",
-            parameters: {
-              type: "object",
-              properties: {
-                providerId: {
-                  type: "string"
-                }
-              },
-              required: ["providerId"]
-            }
-          }
-        }
-      ]
+      model: "llama-3.3-70b-versatile"
     });
 
-    const toolCall = completion.choices[0].message.tool_calls;
+    const reply = completion.choices[0].message.content;
 
-    if (!toolCall) {
-      return res.json({ reply: completion.choices[0].message.content });
-    }
-
-    const tool = toolCall[0];
-    const args = JSON.parse(tool.function.arguments);
-
-    let result;
-
-    if (tool.function.name === "searchProviders") {
-
-      const providers = await UserModel.find({ role: args.role });
-
-      result = providers.map(p => ({
-        id: p._id,
-        name: p.name,
-        role: p.role
-      }));
-
-    }
-
-    if (tool.function.name === "checkSlots") {
-
-      const slots = await Slot.find({
-        providerId: args.providerId,
-        booked: false
-      });
-
-      result = slots.map(s => s.time);
-
-    }
-
-    return res.json({ data: result });
+    res.json({ reply });
 
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Chatbot failed" });
+    console.error(error);
+    res.status(500).json({ error: "AI request failed" });
   }
 };
