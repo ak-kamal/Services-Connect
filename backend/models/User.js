@@ -29,6 +29,24 @@ dateOfBirth: {
         required: true,
         enum: ["customer", "electrician", "plumber", "carpenter", "driver"],
         default: "customer"
+    },
+    certification: {
+        fileName: {
+            type: String,
+            default: ""
+        },
+        fileUrl: {
+            type: String,
+            default: ""
+        },
+        uploadedAt: {
+            type: Date,
+            default: null
+        },
+        verified: {
+            type: Boolean,
+            default: false
+        }
     }
 });
 
