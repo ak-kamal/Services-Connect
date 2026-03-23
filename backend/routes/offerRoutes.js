@@ -2,16 +2,16 @@
 import express from 'express';
 import UserModel from '../models/User.js';
 import Offer from '../models/Offer.js';
-import Slot from '../models/Slot.js';  // Import Slot model to get the slot details
+import Slot from '../models/Slot.js';
 
-const offerRouter = express.Router(); //previous
+const offerRouter = express.Router();
 
-// POST /api/offer - Create an offer from customer to provider
+
+// -------------------- POST OFFER --------------------
 offerRouter.post('/offer', async (req, res) => {
   const { providerId, customerId, timeSlot, date } = req.body;
 
   try {
-    // Ensure customer and provider exist
     const provider = await UserModel.findById(providerId);
     const customer = await UserModel.findById(customerId);
 
@@ -19,8 +19,16 @@ offerRouter.post('/offer', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Provider or Customer not found' });
     }
 
-    // Check if the slot is available (unbooked)
-    const slot = await Slot.findOne({ providerId, time: timeSlot, date });
+    const start = new Date(date);
+    const end = new Date(date);
+    end.setDate(end.getDate() + 1);
+
+    const slot = await Slot.findOne({
+      providerId,
+      time: timeSlot,
+      date: { $gte: start, $lt: end }
+    });
+
     if (!slot) {
       return res.status(404).json({ success: false, message: 'Slot not found' });
     }
@@ -29,7 +37,6 @@ offerRouter.post('/offer', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Slot is already booked' });
     }
 
-    // Create a new offer
     const newOffer = new Offer({
       providerId,
       customerId,
@@ -38,21 +45,18 @@ offerRouter.post('/offer', async (req, res) => {
       status: 'Pending',
     });
 
-    // Save the offer
     await newOffer.save();
 
-    // Update the slot to booked
-    slot.booked = true;
-    await slot.save();
-
     res.status(200).json({ success: true, message: 'Offer sent successfully' });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to send offer', error });
   }
 });
 
-// PUT /api/offer/:offerId/accept - Accept the offer and book the slot
+
+// -------------------- ACCEPT OFFER --------------------
 offerRouter.put('/offer/:offerId/accept', async (req, res) => {
   const { offerId } = req.params;
 
@@ -62,23 +66,59 @@ offerRouter.put('/offer/:offerId/accept', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Offer not found' });
     }
 
-    // Check if the provider exists and update the offer status
     const provider = await UserModel.findById(offer.providerId);
-    if (!provider || provider.role !== 'electrician') {
-      return res.status(404).json({ success: false, message: 'Provider not found or invalid role' });
+    if (!provider) {
+      return res.status(404).json({ success: false, message: 'Provider not found' });
     }
 
+    const start = new Date(offer.date);
+    const end = new Date(offer.date);
+    end.setDate(end.getDate() + 1);
+
+    const slot = await Slot.findOne({
+      providerId: offer.providerId,
+      time: offer.timeSlot,
+      date: { $gte: start, $lt: end }
+    });
+
+    if (!slot) {
+      return res.status(404).json({ success: false, message: 'Slot not found' });
+    }
+
+    if (slot.booked) {
+      return res.status(400).json({ success: false, message: 'Slot already booked' });
+    }
+
+    // Accept offer
     offer.status = 'Accepted';
     await offer.save();
 
+    // Book slot
+    slot.booked = true;
+    await slot.save();
+
+    // Reject other offers
+    await Offer.updateMany(
+      {
+        _id: { $ne: offerId },
+        providerId: offer.providerId,
+        timeSlot: offer.timeSlot,
+        date: offer.date,
+        status: 'Pending'
+      },
+      { status: 'Rejected' }
+    );
+
     res.status(200).json({ success: true, message: 'Offer accepted and slot booked' });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to accept offer', error });
   }
 });
 
-// PUT /api/offer/:offerId/reject - Reject an offer
+
+// -------------------- REJECT OFFER --------------------
 offerRouter.put('/offer/:offerId/reject', async (req, res) => {
   const { offerId } = req.params;
 
@@ -92,24 +132,65 @@ offerRouter.put('/offer/:offerId/reject', async (req, res) => {
     await offer.save();
 
     res.status(200).json({ success: true, message: 'Offer rejected' });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to reject offer', error });
   }
 });
 
-// GET /api/offers?providerId=<providerId> - Fetch all offers for a specific provider
+
+// -------------------- PROVIDER OFFERS --------------------
 offerRouter.get('/offers', async (req, res) => {
   const { providerId } = req.query;
 
   try {
-    // Fetch all offers for the specific provider
-    const offers = await Offer.find({ providerId });
+    const offers = await Offer.find({ providerId })
+      .populate('customerId', 'name')
+      .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, offers });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to fetch offers', error });
+  }
+});
+
+
+// -------------------- CUSTOMER OFFERS --------------------
+offerRouter.get('/customer-offers', async (req, res) => {
+  const { customerId } = req.query;
+
+  try {
+    const offers = await Offer.find({ customerId })
+      .populate('providerId', 'name role')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ success: true, offers });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Failed to fetch customer offers' });
+  }
+});
+
+
+// 🔥🔥🔥 NEW ROUTE (IMPORTANT)
+offerRouter.get('/provider-slot-offers', async (req, res) => {
+  const { providerId } = req.query;
+
+  try {
+    const offers = await Offer.find({
+      providerId,
+      status: { $in: ['Pending', 'Accepted'] }
+    });
+
+    res.status(200).json({ success: true, offers });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Failed to fetch slot offers' });
   }
 });
 

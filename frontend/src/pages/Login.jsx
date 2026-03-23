@@ -39,13 +39,14 @@ function Login() {
       })
 
       const result = await response.json()
-      const { success, message, jwtToken, name, role, error } = result
+      const { success, message, jwtToken, name, role, userId, error } = result
 
       if (success) {
         handleSuccess(message)
         localStorage.setItem('token', jwtToken)
         localStorage.setItem('loggedInUser', name)
         localStorage.setItem('role', role)
+        localStorage.setItem("userId", userId);
 
         setTimeout(() => {
           if (role === 'customer') {
