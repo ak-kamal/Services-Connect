@@ -3,6 +3,16 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from 'react-toastify'
 import { handleError, handleSuccess } from "../utils";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +24,17 @@ const Signup = () => {
     role: "customer",
     nidImageUrl: "",
     nidImagePublicId: "",
+    location: {
+    lat: null,
+    lng: null,
+    address: "",
+  },
+  });
+
+  const [location, setLocation] = useState({
+  lat: null,
+  lng: null,
+  address: "",
   });
 
   const navigate = useNavigate();
@@ -39,12 +60,42 @@ const Signup = () => {
     }
   }, [navigate]);
 
+  const LocationMarker = () => {
+  useMapEvents({
+    async click(e) {
+      const { lat, lng } = e.latlng;
+
+      // Reverse geocoding (Nominatim)
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      );
+      const data = await res.json();
+
+      const address = data.display_name;
+
+      setLocation({ lat, lng, address });
+
+      // also update formData
+      setFormData((prev) => ({
+        ...prev,
+        location: { lat, lng, address },
+      }));
+    },
+  });
+
+  return location.lat ? <Marker position={[location.lat, location.lng]} /> : null;
+};
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
+    if (!formData.location.lat) {
+    return handleError("Please select your address from the map");
+  }
+  
     e.preventDefault();
 
     // Send final data to the backend for signup
@@ -99,18 +150,30 @@ const Signup = () => {
           />
         </div>
 
-        {/* <div className="form-control">
-          <label className="label">Address</label>
-          <input
-            type="text"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="Enter your address"
-            className="input input-bordered w-full"
-            required
-          />
-        </div> */}
+        <div className="form-control">
+  <label className="label">Select Address from Map</label>
+
+  <MapContainer
+    center={[23.8103, 90.4125]} // Dhaka default
+    zoom={13}
+    style={{ height: "300px", width: "100%" }}
+  >
+    <TileLayer
+      attribution="&copy; OpenStreetMap contributors"
+      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    />
+    <LocationMarker />
+  </MapContainer>
+
+  {/* Show selected address */}
+  {location.address && (
+    <div className="mt-2 p-2 bg-gray-100 rounded">
+      <p className="text-sm">
+        <strong>Selected Address:</strong> {location.address}
+      </p>
+    </div>
+  )}
+</div>
 
         <div className="form-control">
           <label className="label">Email</label>

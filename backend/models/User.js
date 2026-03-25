@@ -47,7 +47,21 @@ dateOfBirth: {
             type: Boolean,
             default: false
         }
-    }
+    },
+    location: {
+  lat: {
+    type: Number,
+    required: true,
+  },
+  lng: {
+    type: Number,
+    required: true,
+  },
+  address: {
+    type: String,
+    required: true,
+  },
+},
 });
 
 const UserModel = mongoose.model("users", userSchema);

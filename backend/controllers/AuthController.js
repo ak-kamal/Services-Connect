@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 const signup = async (req, res) => {
     try {
-        const { name, email, password, role, dateOfBirth, nidImageUrl, nidImagePublicId } = req.body;
+        const { name, email, password, role, dateOfBirth, nidImageUrl, nidImagePublicId, location } = req.body;
 
         const user = await UserModel.findOne({ email });
         if (user) {
@@ -14,7 +14,15 @@ const signup = async (req, res) => {
             });
         }
 
-        const userModel = new UserModel({ name, email, password, role, dateOfBirth, nidImageUrl, nidImagePublicId });
+        // validate location
+    if (!location || !location.lat || !location.lng) {
+      return res.status(400).json({
+        message: "Location is required",
+        success: false,
+      });
+    }
+
+        const userModel = new UserModel({ name, email, password, role, dateOfBirth, nidImageUrl, nidImagePublicId, location });
         userModel.password = await bcrypt.hash(password, 10);
 
         await userModel.save();

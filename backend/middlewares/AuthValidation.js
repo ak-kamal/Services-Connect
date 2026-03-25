@@ -11,7 +11,13 @@ const signupValidation = (req, res, next) => {
         dateOfBirth: Joi.string().required(),
   nidImageUrl: Joi.string().uri().required(),
   nidImagePublicId: Joi.string().required(),
-    });
+
+    location: Joi.object({
+      lat: Joi.number().required(),
+      lng: Joi.number().required(),
+      address: Joi.string().min(3).required(),
+    }).required(),
+  });
 
     const { error } = schema.validate(req.body);
     if (error) {
