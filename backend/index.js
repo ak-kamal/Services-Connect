@@ -3,19 +3,26 @@ import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
 import "./db.js";
+import './cronJobs/slotCron.js';
 
 import authRouter from "./routes/AuthRoutes.js";
 import providerRouter from "./routes/ProviderRoutes.js";
+import offerRouter from "./routes/offerRoutes.js";
+import slotRouter from './routes/slotRoutes.js';
+
 
 dotenv.config();
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use('/auth', authRouter);
-app.use('/provider', providerRouter);
+app.use('/api', providerRouter); // Add this line to use providerRouter for /api routes as well
+app.use('/api', offerRouter);
+app.use('/api', slotRouter);
 
 const PORT = process.env.PORT || 5000;
 

@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ProviderProfile from './pages/ProviderProfile';
 import NidUpload from './pages/NidUpload';  // Import the NidUpload page
+import ProviderBooking from './pages/ProviderBooking'  // Import the new ProviderBooking page
 import RefreshHandler from './components/RefreshHandler';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           path="/provider-profile"
           element={<PrivateRoute element={<ProviderProfile />} />}
         />
+        <Route path="/provider-booking/:providerId" element={<PrivateRoute element={<ProviderBooking />} />} /> {/* Add the new route */}
       </Routes>
     </div>
   );

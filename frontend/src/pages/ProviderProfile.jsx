@@ -1,260 +1,289 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify'
-import { BadgeCheck } from 'lucide-react'
-import { handleError, handleSuccess } from '../utils'
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import { BadgeCheck } from "lucide-react";
+import { handleError, handleSuccess } from "../utils";
+import { useOffers } from "../hooks/useOffers";
 
 function ProviderProfile() {
-  const [loggedInUser, setLoggedInUser] = useState('')
-  const [role, setRole] = useState('')
-  const [email, setEmail] = useState('')
-  const [certification, setCertification] = useState(null)
-  const [selectedFile, setSelectedFile] = useState(null)
-  const [isFetchingProfile, setIsFetchingProfile] = useState(true)
-  const [isUploading, setIsUploading] = useState(false)
-  const navigate = useNavigate()
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  const [loggedInUser, setLoggedInUser] = useState("");
+  const [role, setRole] = useState("");
+  const [email, setEmail] = useState("");
+  const [certification, setCertification] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isFetchingProfile, setIsFetchingProfile] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
 
+  const [activeView, setActiveView] = useState("profile");
+
+  const navigate = useNavigate();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Offers Hook
+  const { offers, loadingOffers, fetchOffers } = useOffers(
+    API_BASE_URL,
+    activeView
+  );
+
+  // Auth + Profile
   useEffect(() => {
-    const storedName = localStorage.getItem('loggedInUser') || ''
-    const storedRole = localStorage.getItem('role') || ''
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token");
+    const storedName = localStorage.getItem("loggedInUser") || "";
+    const storedRole = localStorage.getItem("role") || "";
 
-    if (!token) {
-      navigate('/login')
-      return
-    }
+    if (!token) return navigate("/login");
+    if (storedRole === "customer") return navigate("/");
 
-    if (storedRole === 'customer') {
-      navigate('/')
-      return
-    }
-
-    setLoggedInUser(storedName)
-    setRole(storedRole)
+    setLoggedInUser(storedName);
+    setRole(storedRole);
 
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/provider/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        const res = await fetch(`${API_BASE_URL}/api/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-        const result = await response.json()
+        const data = await res.json();
 
-        if (!response.ok || !result.success) {
-          throw new Error(result.message || 'Unable to fetch provider profile')
-        }
+        if (!res.ok || !data.success)
+          throw new Error(data.message);
 
-        const { profile } = result
-        setLoggedInUser(profile.name || storedName)
-        setRole(profile.role || storedRole)
-        setEmail(profile.email || '')
-        setCertification(profile.certification || null)
-      } catch (error) {
-        handleError(error.message || 'Unable to fetch provider profile')
+        const { profile } = data;
+        setLoggedInUser(profile.name);
+        setRole(profile.role);
+        setEmail(profile.email);
+        setCertification(profile.certification);
+      } catch (err) {
+        handleError(err.message);
       } finally {
-        setIsFetchingProfile(false)
+        setIsFetchingProfile(false);
       }
-    }
+    };
 
-    fetchProfile()
-  }, [API_BASE_URL, navigate])
+    fetchProfile();
+  }, [API_BASE_URL, navigate]);
 
-  const initial = useMemo(() => {
-    return loggedInUser ? loggedInUser.charAt(0).toUpperCase() : ''
-  }, [loggedInUser])
+  const initial = useMemo(
+    () => loggedInUser?.charAt(0).toUpperCase(),
+    [loggedInUser]
+  );
 
-  const formattedRole = useMemo(() => {
-    return role ? role.charAt(0).toUpperCase() + role.slice(1) : ''
-  }, [role])
+  const formattedRole = useMemo(
+    () => role?.charAt(0).toUpperCase() + role.slice(1),
+    [role]
+  );
 
   const hasVerifiedCertification =
-    Boolean(certification?.fileUrl) && Boolean(certification?.verified)
+    certification?.fileUrl && certification?.verified;
 
-  const getCertificationFileUrl = () => {
-    if (!certification?.fileUrl || !API_BASE_URL) {
-      return ''
-    }
+  const handleUploadCertification = async (e) => {
+    e.preventDefault();
 
-    return `${API_BASE_URL}${certification.fileUrl}`
-  }
+    const token = localStorage.getItem("token");
+    if (!selectedFile) return handleError("Select file first");
 
-  const handleFileChange = (event) => {
-    const file = event.target.files?.[0]
-    setSelectedFile(file || null)
-  }
-
-  const handleUploadCertification = async (event) => {
-    event.preventDefault()
-
-    const token = localStorage.getItem('token')
-
-    if (!selectedFile) {
-      return handleError('Please select a certification file before uploading')
-    }
-
-    if (!token) {
-      return handleError('Session expired. Please login again')
-    }
-
-    const formData = new FormData()
-    formData.append('certification', selectedFile)
+    const formData = new FormData();
+    formData.append("certification", selectedFile);
 
     try {
-      setIsUploading(true)
+      setIsUploading(true);
 
-      const response = await fetch(`${API_BASE_URL}/provider/certification`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      })
+      const res = await fetch(
+        `${API_BASE_URL}/api/certification`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        }
+      );
 
-      const result = await response.json()
+      const data = await res.json();
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || 'Certification upload failed')
-      }
+      if (!res.ok || !data.success)
+        throw new Error(data.message);
 
-      setCertification(result.certification)
-      setSelectedFile(null)
-      handleSuccess(result.message || 'Certification uploaded successfully')
-    } catch (error) {
-      handleError(error.message || 'Certification upload failed')
+      setCertification(data.certification);
+      handleSuccess("Uploaded!");
+    } catch (err) {
+      handleError(err.message);
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }
+  };
+
+  const getCertificationFileUrl = () => {
+  if (!certification?.fileUrl || !API_BASE_URL) return "";
+  return `${API_BASE_URL}${certification.fileUrl}`;
+};
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('loggedInUser')
-    localStorage.removeItem('role')
-    handleSuccess('User logged out')
+    localStorage.clear();
+    handleSuccess("Logged out");
+    navigate("/login");
+  };
 
-    setTimeout(() => {
-      navigate('/login')
-    }, 1000)
-  }
+  const handleAccept = async (id) => {
+    await fetch(`${API_BASE_URL}/api/offer/${id}/accept`, {
+      method: "PUT",
+    });
+    fetchOffers();
+  };
+
+  const handleReject = async (id) => {
+    await fetch(`${API_BASE_URL}/api/offer/${id}/reject`, {
+      method: "PUT",
+    });
+    fetchOffers();
+  };
 
   return (
     <div className="min-h-screen bg-base-200">
-      <div className="navbar bg-base-100 shadow-md px-6">
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-primary">Provider Profile</h1>
-        </div>
+      {/* NAVBAR */}
+      <div className="navbar bg-base-100 shadow px-6">
+        <h1 className="text-xl font-bold flex-1">
+          Provider Dashboard
+        </h1>
 
-        <div className="flex-none">
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-circle avatar"
-            >
-              <div className="w-12 rounded-full bg-primary text-primary-content flex items-center justify-center">
-                <span className="text-lg font-bold leading-none">{initial}</span>
-              </div>
+        <div className="dropdown dropdown-end">
+          <div tabIndex={0} role="button" className="btn btn-circle avatar">
+            <div className="w-10 bg-primary text-white flex items-center justify-center rounded-full">
+              {initial}
             </div>
-
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-            >
-              <li className="px-2 py-1 font-semibold text-base-content/80">
-                {loggedInUser}
-              </li>
-              <li className="px-2 py-1 text-sm text-base-content/60 capitalize">
-                {formattedRole}
-              </li>
-              <li>
-                <button onClick={handleLogout}>Logout</button>
-              </li>
-            </ul>
           </div>
+
+          <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-40">
+            <li>{loggedInUser}</li>
+            <li>{formattedRole}</li>
+            <li>
+              <button onClick={handleLogout}>Logout</button>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-10">
-        <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <div className="flex flex-wrap items-center gap-3">
-              <h2 className="card-title text-3xl">Welcome, {loggedInUser}</h2>
+      {/* CONTENT */}
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="tabs mb-6 gap-2">
+  <button
+    className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "profile" && "tab-active"}`}
+    onClick={() => setActiveView("profile")}
+  >
+    Profile
+  </button>
+
+  <button
+    className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "offers" && "tab-active"}`}
+    onClick={() => setActiveView("offers")}
+  >
+    Offers
+  </button>
+</div>
+
+        {/* PROFILE */}
+        {activeView === "profile" && (
+          <div className="card bg-base-100 shadow p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <h2 className="text-2xl font-bold">
+                {loggedInUser}
+              </h2>
+
               {hasVerifiedCertification && (
-                <div className="badge badge-info gap-1 px-3 py-3 text-white">
-                  <BadgeCheck size={16} />
-                  Certified
-                </div>
+                <span className="badge badge-info text-white">
+                  <BadgeCheck size={16} /> Verified
+                </span>
               )}
             </div>
-            <p className="text-lg">
-              Role: <span className="font-semibold">{formattedRole}</span>
-            </p>
-            <p className="text-base-content/70">Email: {email}</p>
-            <p className="text-base-content/70">
-              This is your provider dashboard/profile page. Later, you can add:
-              services, pricing, availability, booking requests and reviews.
-            </p>
 
-            {isFetchingProfile ? (
-              <div className="mt-6 text-base-content/70">Loading provider profile...</div>
+            <p className="mb-1">Role: {formattedRole}</p>
+            <p className="mb-4">Email: {email}</p>
+
+            <form onSubmit={handleUploadCertification}>
+              <input
+                type="file"
+                className="file-input file-input-bordered w-full mb-3"
+                onChange={(e) =>
+                  setSelectedFile(e.target.files[0])
+                }
+              />
+
+              <button className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none">
+                {isUploading ? "Uploading..." : "Upload"}
+              </button>
+            </form>
+
+            {certification?.fileUrl && (
+  <div className="mt-5 p-4 rounded-lg border border-base-300 bg-base-200/40">
+    <p className="text-sm">
+      Current file:{" "}
+      <span className="font-semibold">{certification.fileName}</span>
+    </p>
+
+    <p className="text-sm mt-1">
+      Uploaded on:{" "}
+      {certification.uploadedAt
+        ? new Date(certification.uploadedAt).toLocaleString()
+        : "N/A"}
+    </p>
+
+    <a
+      href={getCertificationFileUrl()}
+      target="_blank"
+      rel="noreferrer"
+      className="link link-info mt-2 inline-block"
+    >
+      View uploaded certification
+    </a>
+  </div>
+)}
+          </div>
+        )}
+
+        {/* OFFERS */}
+        {activeView === "offers" && (
+          <div className="space-y-4">
+            {loadingOffers ? (
+              <p>Loading...</p>
+            ) : offers.length === 0 ? (
+              <p>No offers yet</p>
             ) : (
-              <div className="mt-8">
-                <h3 className="text-xl font-semibold mb-3">Certification Verification</h3>
-                <p className="text-sm text-base-content/70 mb-4">
-                  Upload an optional certification document (PDF/JPG/PNG, max 5MB) to
-                  display a verified provider badge.
-                </p>
+              offers.map((o) => (
+                <div
+                  key={o._id}
+                  className="card bg-base-100 shadow p-4"
+                >
+                  <p><b>Customer:</b> {o.customerId?.name}</p>
+                  <p><b>Date:</b> {o.date.split('T')[0]}</p>
+                  <p><b>Time:</b> {o.timeSlot}</p>
+                  <p><b>Address:</b> {o.address}</p>
+                  <p><b>Status:</b> {o.status}</p>
 
-                <form onSubmit={handleUploadCertification} className="space-y-4">
-                  <input
-                    type="file"
-                    accept=".pdf,.png,.jpg,.jpeg"
-                    className="file-input file-input-bordered w-full"
-                    onChange={handleFileChange}
-                  />
-                  <button
-                    type="submit"
-                    className="btn bg-sky-600 hover:bg-sky-700 border-sky-700 text-white disabled:bg-slate-300 disabled:text-slate-500 disabled:border-slate-300"
-                    disabled={isUploading}
-                  >
-                    {isUploading ? 'Uploading...' : 'Upload Certification'}
-                  </button>
-                </form>
+                  {o.status === "Pending" && (
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        className="btn btn-success btn-sm"
+                        onClick={() => handleAccept(o._id)}
+                      >
+                        Accept
+                      </button>
 
-                {certification?.fileUrl && (
-                  <div className="mt-5 p-4 rounded-lg border border-base-300 bg-base-200/40">
-                    <p className="text-sm">
-                      Current file:{' '}
-                      <span className="font-semibold">{certification.fileName}</span>
-                    </p>
-                    <p className="text-sm mt-1">
-                      Uploaded on:{' '}
-                      {certification.uploadedAt
-                        ? new Date(certification.uploadedAt).toLocaleString()
-                        : 'N/A'}
-                    </p>
-                    <a
-                      href={getCertificationFileUrl()}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="link link-info mt-2 inline-block"
-                    >
-                      View uploaded certification
-                    </a>
-                  </div>
-                )}
-              </div>
+                      <button
+                        className="btn btn-error btn-sm"
+                        onClick={() => handleReject(o._id)}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
             )}
           </div>
-        </div>
+        )}
       </div>
 
       <ToastContainer />
     </div>
-  )
+  );
 }
 
-export default ProviderProfile
+export default ProviderProfile;

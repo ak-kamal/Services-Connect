@@ -39,13 +39,21 @@ function Login() {
       })
 
       const result = await response.json()
-      const { success, message, jwtToken, name, role, error } = result
+      const { success, message, jwtToken, name, role, userId, location, error } = result
 
       if (success) {
         handleSuccess(message)
         localStorage.setItem('token', jwtToken)
         localStorage.setItem('loggedInUser', name)
         localStorage.setItem('role', role)
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("location", JSON.stringify(location));
+        localStorage.setItem("userData", JSON.stringify({
+    name,
+    role,
+    userId,
+    location
+  }))
 
         setTimeout(() => {
           if (role === 'customer') {
@@ -109,7 +117,7 @@ function Login() {
                 />
               </div>
 
-              <button type="submit" className="btn btn-primary w-full">
+              <button type="submit" className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none">
                 Login
               </button>
 

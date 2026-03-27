@@ -27,7 +27,7 @@ dateOfBirth: {
     role: {
         type: String,
         required: true,
-        enum: ["customer", "electrician", "plumber", "carpenter", "driver"],
+        enum: ["customer", "electrician", "plumber", "carpenter", "house maid"],
         default: "customer"
     },
     certification: {
@@ -64,5 +64,5 @@ dateOfBirth: {
 },
 });
 
-const UserModel = mongoose.model("users", userSchema);
+const UserModel = mongoose.model("User", userSchema);
 export default UserModel;

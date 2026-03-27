@@ -101,7 +101,7 @@ const NidUpload = () => {
           />
         </div> */}
 
-        <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+        <button type="submit" className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none" disabled={loading}>
           {loading ? "Processing..." : "Submit"}
         </button>
       </form>

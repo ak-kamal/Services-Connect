@@ -1,6 +1,7 @@
 import UserModel from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import createProviderSlots from "./SlotController.js";
 
 const signup = async (req, res) => {
     try {
@@ -27,6 +28,11 @@ const signup = async (req, res) => {
 
         await userModel.save();
 
+        // Create slots for the provider
+        if (role !== 'customer') {
+            createProviderSlots(userModel._id);
+        }
+        
         res.status(201).json({
             message: "Signup successful, you can login now",
             success: true
@@ -75,7 +81,10 @@ const login = async (req, res) => {
             jwtToken,
             email: user.email,
             name: user.name,
-            role: user.role
+            role: user.role,
+            location: user.location,
+            userId: user._id 
+
         });
     } catch (error) {
         res.status(500).json({

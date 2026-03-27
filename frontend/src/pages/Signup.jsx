@@ -217,7 +217,7 @@ const Signup = () => {
           </select>
         </div>
 
-        <button type="submit" className="btn btn-primary w-full">
+        <button type="submit" className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none">
           Sign Up
         </button>
       </form>
