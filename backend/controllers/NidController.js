@@ -19,29 +19,16 @@ export const extractNidDetails = async (req, res) => {
 
     // Preprocess images
     const frontImageBuffer = await preprocessImage(nidFront[0].buffer);
-    // const backImageBuffer = await preprocessImage(nidBack[0].buffer);
 
     // Perform OCR using Tesseract.js
     const frontText = await tesseract.recognize(frontImageBuffer, 'eng', { logger: (m) => console.log(m) });
-    // const backText = await tesseract.recognize(backImageBuffer, 'ben+eng', { logger: (m) => console.log(m) });
 
     // Log OCR output (optional)
     console.log("Front OCR Text:", frontText.data.text);
-    //console.log("Back OCR Text:", backText.data.text);
 
     // Parse the text for name, dob, and address
     const extractedData = parseNidText(frontText.data.text);
 
-    // // Send back the extracted data
-    // return res.status(200).json({
-    //   success: true,
-    //   message: 'NID details extracted successfully',
-    //   data: {
-    //     ...extractedData,
-    //     nidImageUrl: cloudinaryResult.secure_url,
-    //     nidImagePublicId: cloudinaryResult.public_id
-    //   }
-    // });
     const responsePayload = {
   success: true,
   message: "NID details extracted successfully",
@@ -52,7 +39,7 @@ export const extractNidDetails = async (req, res) => {
   },
 };
 
-console.log(responsePayload.data); // ✅ logs only the data field
+console.log(responsePayload.data); // logs only the data field
 
 return res.status(200).json(responsePayload);
   } catch (error) {

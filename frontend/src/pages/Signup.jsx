@@ -10,7 +10,7 @@ const Signup = () => {
     dateOfBirth: "",
     //address: "",
     email: "",
-    password: "",
+    password: "Minimum 6 characters long!!",
     role: "customer",
     nidImageUrl: "",
     nidImagePublicId: "",

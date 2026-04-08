@@ -4,6 +4,7 @@ import cors from "cors";
 import "./db.js";
 
 import authRouter from "./routes/AuthRoutes.js";
+import paymentRouter from "./routes/paymentRoutes.js";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 //app.use('/auth', authRouter);
 app.use("/auth", authRouter);
 //app.use("/api/auth", authRouter);
+app.use("/payments", paymentRouter);
 
 const PORT = process.env.PORT || 5000;
 
