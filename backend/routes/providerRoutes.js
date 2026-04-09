@@ -6,6 +6,7 @@ import path from "path";
 import fs from "fs";
 import { ensureAuthenticated } from "../middlewares/AuthMiddleware.js";
 import { getProviderProfile, uploadCertification } from "../controllers/ProviderController.js";
+import { calculateProviderPrice } from '../controllers/PricesController.js';
 
 function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371e3; // meters
@@ -95,40 +96,40 @@ providerRouter.post(
 
 // GET /api/providers?role=electrician
 providerRouter.get('/providers', async (req, res) => {
-  const { role, lat, lng, radius } = req.query;
+  const { role, lat, lng, radius, category, tier, basePrice } = req.query;
 
   try {
-    // 🔥 Normal fetch (no filter)
-    if (!lat || !lng) {
-      const providers = await UserModel.find({ role });
-      return res.status(200).json({ success: true, providers });
-    }
+    // Fetch all providers with the specified role
+    const providers = await UserModel.find({ role });
 
-    const userLat = parseFloat(lat);
-    const userLng = parseFloat(lng);
-    const maxDistance = (parseFloat(radius) || 5) * 1000; // km → meters
-
-    // 🔥 Geo query
-    const providers = await UserModel.find({
-      role,
-      "location.lat": { $exists: true },
-      "location.lng": { $exists: true },
+    const providersWithPriceAndDistance = providers.map(provider => {
+      let distance = null;
+      
+      // Calculate distance if location data is available
+      if (lat && lng && provider.location?.lat && provider.location?.lng) {
+        const userLat = parseFloat(lat);
+        const userLng = parseFloat(lng);
+        const pLat = provider.location.lat;
+        const pLng = provider.location.lng;
+        distance = getDistance(userLat, userLng, pLat, pLng);
+        console.log('distance: ', distance);
+      }
+      
+      // Add distance to provider object before price calculation
+      const providerWithDistance = { ...provider.toObject(), distance };
+      
+      // Calculate total price with distance included
+      const totalPrice = Number(calculateProviderPrice(providerWithDistance, basePrice));
+      console.log(`Provider: ${provider.name}, Distance: ${distance}, Price: ${totalPrice}`);
+      
+      return { ...providerWithDistance, totalPrice };
     });
 
-    // 🔥 Manual filtering (simple version)
-    const filteredProviders = providers.filter((provider) => {
-      const pLat = provider.location.lat;
-      const pLng = provider.location.lng;
-
-      const distance = getDistance(userLat, userLng, pLat, pLng);
-      return distance <= maxDistance;
+    res.status(200).json({ 
+      success: true, 
+      providers: providersWithPriceAndDistance,
+      searchRadius: radius || 5 // Send radius to frontend for filtering
     });
-
-    res.status(200).json({
-      success: true,
-      providers: filteredProviders,
-    });
-
   } catch (error) {
     res.status(500).json({
       success: false,

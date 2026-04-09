@@ -3,23 +3,21 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function ProviderCard({ provider }) {
-  const [isAvailable, setIsAvailable] = useState(true);
   const navigate = useNavigate();
-
-  // Check if the user is logged in by checking for a token in localStorage
   const isLoggedIn = localStorage.getItem('token') !== null;
 
   const handleCheckAvailability = () => {
-    console.log(`Checking availability for ${provider.name}`);
-
-    // If user is logged in, redirect to provider booking page
     if (isLoggedIn) {
       navigate(`/provider-booking/${provider._id}`);
     } else {
-      // If user is not logged in, redirect to login page
       navigate('/login');
     }
   };
+
+  // Add this before the return in ProviderCard
+  console.log('Provider data:', provider);
+  console.log('Total price type:', typeof provider.totalPrice, provider.totalPrice);
+  console.log('Availability:', provider.isAvailable);
 
   return (
     <div className="card bg-base-100 shadow-lg">
@@ -33,14 +31,15 @@ function ProviderCard({ provider }) {
           <div className="ml-4">
             <h3 className="card-title">{provider.name}</h3>
             <p className="text-sm text-base-content/60">{provider.role}</p>
+            <p className="mt-2 font-semibold">Price: {JSON.stringify(provider.totalPrice)} BDT</p>
           </div>
         </div>
         <div className="card-actions justify-end mt-4">
           <button
-            className={`btn btn-sm ${isAvailable ? 'btn-outline btn-primary' : 'btn-disabled'}`}
+            className={`btn btn-sm ${provider.isAvailable ? 'btn-outline btn-primary' : 'btn-disabled'}`}
             onClick={handleCheckAvailability}
           >
-            {isAvailable ? 'Check Availability' : 'No slots available'}
+            {provider.isAvailable ? 'Check Availability' : 'No slots available'}
           </button>
         </div>
       </div>
