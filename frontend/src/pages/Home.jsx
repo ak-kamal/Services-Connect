@@ -88,7 +88,7 @@ const handleWorkDone = async (offerId) => {
           offer._id === offerId ? { ...offer, status: 'Completed' } : offer
         )
       );
-      handleSuccess('Work marked as completed!');
+      handleSuccess('Work marked as completed! Email sent to customer and provider');
     } else {
       handleError('Failed to mark work as completed');
     }

@@ -15,7 +15,12 @@ function SearchProvider() {
   const navigate = useNavigate();
 
   // Role, category, and tier data with descriptions
-  const roles = ['electrician', 'plumber', 'carpenter', 'house maid'];
+  const roles = [
+  { value: 'electrician', label: 'Electrician' },
+  { value: 'plumber', label: 'Plumber' },
+  { value: 'carpenter', label: 'Carpenter' },
+  { value: 'housemaid', label: 'House maid' }
+];
   
   const categories = {
     electrician: [
@@ -162,10 +167,10 @@ function SearchProvider() {
         <select id="role" className="select select-bordered w-full" onChange={handleRoleChange} value={role}>
           <option value="">Select Role</option>
           {roles.map((roleOption, index) => (
-            <option key={index} value={roleOption}>
-              {roleOption.charAt(0).toUpperCase() + roleOption.slice(1)}
-            </option>
-          ))}
+  <option key={index} value={roleOption.value}>
+    {roleOption.label}
+  </option>
+))}
         </select>
       </div>
 
