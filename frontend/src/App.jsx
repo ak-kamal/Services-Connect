@@ -4,8 +4,9 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ProviderProfile from './pages/ProviderProfile';
-import NidUpload from './pages/NidUpload';  // Import the NidUpload page
-import ProviderBooking from './pages/ProviderBooking'  // Import the new ProviderBooking page
+import NidUpload from './pages/NidUpload';
+import ProviderBooking from './pages/ProviderBooking';
+import SearchProvider from './pages/SearchProvider'; // Add this import
 import RefreshHandler from './components/RefreshHandler';
 
 function App() {
@@ -23,12 +24,13 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/nid-upload" element={<NidUpload />} />  {/* Add route for NID upload */}
+        <Route path="/nid-upload" element={<NidUpload />} />
+        <Route path="/search-provider" element={<SearchProvider />}  />
         <Route
           path="/provider-profile"
           element={<PrivateRoute element={<ProviderProfile />} />}
         />
-        <Route path="/provider-booking/:providerId" element={<PrivateRoute element={<ProviderBooking />} />} /> {/* Add the new route */}
+        <Route path="/provider-booking/:providerId" element={<PrivateRoute element={<ProviderBooking />} />} />
       </Routes>
     </div>
   );
