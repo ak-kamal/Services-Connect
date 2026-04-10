@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { handleSuccess, handleError } from '../utils';
+import ChatWindow from '../components/ChatWindow';
 
 function Home() {
   const [loggedInUser, setLoggedInUser] = useState('');
@@ -13,6 +14,7 @@ function Home() {
   const [activeView, setActiveView] = useState('home');
   const [myOffers, setMyOffers] = useState([]);
   const [loadingOffers, setLoadingOffers] = useState(false);
+  const [chatOffer, setChatOffer] = useState(null);
 
   useEffect(() => {
     const storedName = localStorage.getItem('loggedInUser') || '';
@@ -192,15 +194,25 @@ return (
                     {offer.status === 'Rejected' && '❌ Request rejected'}
                   </p>
 
-                  {/* Show "Work Done" button if the status is "Accepted" */}
-                  {offer.status === 'Accepted' && (
-                    <button
-                      className="btn btn-sm bg-blue-500 text-white mt-2"
-                      onClick={() => handleWorkDone(offer._id)}
-                    >
-                      Work Done
-                    </button>
-                  )}
+                  {/* Chat button: show for Pending or Accepted */}
+{(offer.status === 'Pending' || offer.status === 'Accepted') && (
+  <button
+    className="btn btn-sm btn-outline btn-primary mt-3 mr-2"
+    onClick={() => setChatOffer(offer)}
+  >
+    💬 Chat with Provider
+  </button>
+)}
+
+{/* Work Done button: ONLY for Accepted */}
+{offer.status === 'Accepted' && (
+  <button
+    className="btn btn-sm bg-blue-500 text-white mt-3"
+    onClick={() => handleWorkDone(offer._id)}
+  >
+    Work Done
+  </button>
+)}
 
                 </div>
               ))}
@@ -214,8 +226,20 @@ return (
             Back
           </button>
         </div>
-    
-        )}
+      )}
+
+      {chatOffer && (
+        <ChatWindow
+          offerId={chatOffer._id}
+          offerDate={chatOffer.date}
+          offerTimeSlot={chatOffer.timeSlot}
+          otherPartyName={chatOffer.providerId?.name || 'Provider'}
+          currentUserId={localStorage.getItem('userId')}
+          token={localStorage.getItem('token')}
+          onClose={() => setChatOffer(null)}
+        />
+      )}
+
       <ToastContainer />
     </div>
   );
