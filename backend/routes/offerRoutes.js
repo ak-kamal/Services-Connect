@@ -4,10 +4,13 @@ import UserModel from '../models/User.js';
 import Offer from '../models/Offer.js';
 import Slot from '../models/Slot.js';
 
+import sendWorkDoneEmail from '../utils/nodemailer.js';  // Import Nodemailer utility
+
+
 const offerRouter = express.Router();
 
 
-// -------------------- POST OFFER --------------------
+// POST OFFER 
 offerRouter.post('/offer', async (req, res) => {
   const { providerId, customerId, timeSlot, date, address } = req.body;
 
@@ -57,7 +60,7 @@ offerRouter.post('/offer', async (req, res) => {
 });
 
 
-// -------------------- ACCEPT OFFER --------------------
+// Update OFFER 
 offerRouter.put('/offer/:offerId/accept', async (req, res) => {
   const { offerId } = req.params;
 
@@ -110,6 +113,13 @@ offerRouter.put('/offer/:offerId/accept', async (req, res) => {
       { status: 'Rejected' }
     );
 
+
+
+
+
+
+    
+
     res.status(200).json({ success: true, message: 'Offer accepted and slot booked' });
 
   } catch (error) {
@@ -141,7 +151,7 @@ offerRouter.put('/offer/:offerId/reject', async (req, res) => {
 });
 
 
-// -------------------- PROVIDER OFFERS --------------------
+//  PROVIDER OFFERS 
 offerRouter.get('/offers', async (req, res) => {
   const { providerId } = req.query;
 
@@ -159,7 +169,7 @@ offerRouter.get('/offers', async (req, res) => {
 });
 
 
-// -------------------- CUSTOMER OFFERS --------------------
+// CUSTOMER OFFERS
 offerRouter.get('/customer-offers', async (req, res) => {
   const { customerId } = req.query;
 
@@ -177,7 +187,7 @@ offerRouter.get('/customer-offers', async (req, res) => {
 });
 
 
-// 🔥🔥🔥 NEW ROUTE (IMPORTANT)
+
 offerRouter.get('/provider-slot-offers', async (req, res) => {
   const { providerId } = req.query;
 
@@ -192,6 +202,37 @@ offerRouter.get('/provider-slot-offers', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to fetch slot offers' });
+  }
+});
+
+
+
+// New route for marking offer as completed
+offerRouter.put('/offer/:offerId/complete', async (req, res) => {
+  const { offerId } = req.params;
+
+  try {
+    const offer = await Offer.findById(offerId);
+    if (!offer) {
+      return res.status(404).json({ success: false, message: 'Offer not found' });
+    }
+
+    // Update status to "Completed"
+    offer.status = 'Completed';
+    await offer.save();
+
+    // Fetch provider and customer details
+    const provider = await UserModel.findById(offer.providerId);
+    const customer = await UserModel.findById(offer.customerId);
+
+    // Send email to both customer and provider
+    await sendWorkDoneEmail(provider, customer, offer);  // Call the email function
+
+    res.status(200).json({ success: true, message: 'Offer marked as completed and email sent' });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Failed to mark offer as completed', error });
   }
 });
 

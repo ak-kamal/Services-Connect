@@ -213,7 +213,7 @@ const Signup = () => {
             <option value="electrician">Electrician</option>
             <option value="plumber">Plumber</option>
             <option value="carpenter">Carpenter</option>
-            <option value="driver">House maid</option>
+            <option value="house maid">House maid</option>
           </select>
         </div>
 
