@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 import { BadgeCheck } from "lucide-react";
 import { handleError, handleSuccess } from "../utils";
 import { useOffers } from "../hooks/useOffers";
+import ChatWindow from "../components/ChatWindow";
 
 function ProviderProfile() {
   const [loggedInUser, setLoggedInUser] = useState("");
@@ -15,6 +16,7 @@ function ProviderProfile() {
   const [isUploading, setIsUploading] = useState(false);
 
   const [activeView, setActiveView] = useState("profile");
+  const [chatOffer, setChatOffer] = useState(null);
 
   const navigate = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -274,12 +276,33 @@ function ProviderProfile() {
                       </button>
                     </div>
                   )}
+
+                  {o.status !== "Rejected" && (
+                    <button
+                      className="btn btn-sm btn-outline btn-primary mt-2"
+                      onClick={() => setChatOffer(o)}
+                    >
+                      💬 Chat with Customer
+                    </button>
+                  )}
                 </div>
               ))
             )}
           </div>
         )}
       </div>
+
+      {chatOffer && (
+        <ChatWindow
+          offerId={chatOffer._id}
+          offerDate={chatOffer.date}
+          offerTimeSlot={chatOffer.timeSlot}
+          otherPartyName={chatOffer.customerId?.name || 'Customer'}
+          currentUserId={localStorage.getItem("userId")}
+          token={localStorage.getItem("token")}
+          onClose={() => setChatOffer(null)}
+        />
+      )}
 
       <ToastContainer />
     </div>

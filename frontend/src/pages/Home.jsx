@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import { handleSuccess, handleError } from '../utils';
 
 import ProviderCard from '../components/ProviderCard';
+import ChatWindow from '../components/ChatWindow';
 
 function Home() {
   const [loggedInUser, setLoggedInUser] = useState('');
@@ -15,6 +16,7 @@ function Home() {
   const [activeView, setActiveView] = useState('home');
   const [myOffers, setMyOffers] = useState([]);
   const [loadingOffers, setLoadingOffers] = useState(false);
+  const [chatOffer, setChatOffer] = useState(null);
 
   const navigate = useNavigate();
 
@@ -240,6 +242,15 @@ function Home() {
                     {offer.status === 'Rejected' && '❌ Request rejected'}
                   </p>
 
+                  {offer.status !== 'Rejected' && (
+                    <button
+                      className="btn btn-sm btn-outline btn-primary mt-3"
+                      onClick={() => setChatOffer(offer)}
+                    >
+                      💬 Chat with Provider
+                    </button>
+                  )}
+
                 </div>
               ))}
             </div>
@@ -252,6 +263,18 @@ function Home() {
             Back
           </button>
         </div>
+      )}
+
+      {chatOffer && (
+        <ChatWindow
+          offerId={chatOffer._id}
+          offerDate={chatOffer.date}
+          offerTimeSlot={chatOffer.timeSlot}
+          otherPartyName={chatOffer.providerId?.name || 'Provider'}
+          currentUserId={localStorage.getItem('userId')}
+          token={localStorage.getItem('token')}
+          onClose={() => setChatOffer(null)}
+        />
       )}
 
       <ToastContainer />
