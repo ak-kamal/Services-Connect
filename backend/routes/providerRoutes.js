@@ -98,7 +98,7 @@ providerRouter.get('/providers', async (req, res) => {
   const { role, lat, lng, radius } = req.query;
 
   try {
-    // 🔥 Normal fetch (no filter)
+    // Normal fetch (no filter)
     if (!lat || !lng) {
       const providers = await UserModel.find({ role });
       return res.status(200).json({ success: true, providers });
@@ -108,14 +108,14 @@ providerRouter.get('/providers', async (req, res) => {
     const userLng = parseFloat(lng);
     const maxDistance = (parseFloat(radius) || 5) * 1000; // km → meters
 
-    // 🔥 Geo query
+    // Geo query
     const providers = await UserModel.find({
       role,
       "location.lat": { $exists: true },
       "location.lng": { $exists: true },
     });
 
-    // 🔥 Manual filtering (simple version)
+    // Manual filtering (simple version)
     const filteredProviders = providers.filter((provider) => {
       const pLat = provider.location.lat;
       const pLng = provider.location.lng;

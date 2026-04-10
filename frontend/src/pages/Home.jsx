@@ -86,7 +86,7 @@ function Home() {
     fetchProviders(role);
   };
 
-  // 🔥 NEW FUNCTION
+  //offer checking by customer
   const fetchMyOffers = async () => {
     const customerId = localStorage.getItem("userId");
 
@@ -108,6 +108,42 @@ function Home() {
     }
   };
 
+
+//handle workDOne email
+const handleWorkDone = async (offerId) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/offer/${offerId}/complete`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`, // Use token if required
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Update the offer status in the state (optimistic update)
+      setMyOffers((prevOffers) =>
+        prevOffers.map((offer) =>
+          offer._id === offerId ? { ...offer, status: 'Completed' } : offer
+        )
+      );
+      handleSuccess('Work marked as completed!');
+    } else {
+      handleError('Failed to mark work as completed');
+    }
+  } catch (error) {
+    handleError('Error completing work');
+  }
+};
+
+
+
+
   return (
     <div className="min-h-screen bg-base-200">
 
@@ -121,7 +157,6 @@ function Home() {
 
         <div className="flex-none">
 
-          {/* 🔥 NEW BUTTON */}
           {loggedInUser && role === 'customer' && (
 
             <button
@@ -239,6 +274,16 @@ function Home() {
                     {offer.status === 'Accepted' && `✅ ${offer.providerId?.name} accepted your request`}
                     {offer.status === 'Rejected' && '❌ Request rejected'}
                   </p>
+
+                  {/* Show "Work Done" button if the status is "Accepted" */}
+                  {offer.status === 'Accepted' && (
+                    <button
+                      className="btn btn-sm bg-blue-500 text-white mt-2"
+                      onClick={() => handleWorkDone(offer._id)}
+                    >
+                      Work Done
+                    </button>
+                  )}
 
                 </div>
               ))}
