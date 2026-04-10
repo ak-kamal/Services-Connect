@@ -85,13 +85,13 @@ function SearchProvider() {
     ],
   };
 
-  // Fetch providers based on the selected filters
+// Fetch providers based on the selected filters
   const fetchProviders = async () => {
   try {
     const selectedTier = tiers[category]?.find(t => t.name === tier);
     let url = `http://localhost:5000/api/providers?role=${role}&category=${category}&tier=${tier}&basePrice=${selectedTier.basePrice}`;
 
-    if (nearbyOnly) {
+    
       const user = JSON.parse(localStorage.getItem("userData"));
 
       if (!user?.location?.lat) {
@@ -101,7 +101,7 @@ function SearchProvider() {
 
       const { lat, lng } = user.location;
       url += `&lat=${lat}&lng=${lng}&radius=5`;
-    }
+    
 
     const response = await fetch(url);
     const data = await response.json();
@@ -197,7 +197,7 @@ function SearchProvider() {
                 </select>
               </div>
 
-              <p className="text-sm text-base-content/60 mb-4">*Additional charges may apply based on distance and complexity.</p>
+              <p className="text-sm text-base-content/60 mb-4">*Additional charges will apply based on provider's skills and distance from you.</p>
             </>
           )}
         </>
@@ -217,7 +217,7 @@ function SearchProvider() {
 
       {role && category && tier && (
         <button
-          className={`btn btn-primary mt-4 w-full max-w-md ${!isSubmitEnabled && 'btn-disabled'}`}
+          className={`btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none px-6 ${!isSubmitEnabled && 'btn-disabled'}`}
           onClick={handleSubmit}
           disabled={!isSubmitEnabled}
         >

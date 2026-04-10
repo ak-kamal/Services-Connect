@@ -75,21 +75,14 @@ export const calculateProviderPrice = async (provider, basePrice) => {
   } else {
     pendingAdjustment = (provider.pendingOffers / maxPendingOffers) * 100;
   }
-  console.log(provider.distance);
-  const distanceAdjustment = provider.distance * 10;
-  console.log('b', BasePrice);
-  console.log('r',ratingAdjustment);
-  console.log('p', pendingAdjustment);
-  console.log('d', distanceAdjustment);
-  console.log('j', jobsAdjustment);
+  const distanceAdjustment = provider.distance * 0.02;
   // Calculate the final total price (use let since you're modifying it)
   let totalPrice = BasePrice + ratingAdjustment + pendingAdjustment + distanceAdjustment;
-  console.log(totalPrice);
+  console.log(1, totalPrice);
   if (provider.completedJobs > 20) {
     totalPrice = totalPrice + jobsAdjustment;
   } else {
     totalPrice = totalPrice - jobsAdjustment;
   }
-  
-  return totalPrice;
+  return Number(totalPrice.toFixed(2));
 };

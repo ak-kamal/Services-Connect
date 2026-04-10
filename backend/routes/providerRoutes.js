@@ -102,7 +102,8 @@ providerRouter.get('/providers', async (req, res) => {
     // Fetch all providers with the specified role
     const providers = await UserModel.find({ role });
 
-    const providersWithPriceAndDistance = providers.map(provider => {
+    // Use Promise.all to handle async price calculations for all providers
+    const providersWithPriceAndDistance = await Promise.all(providers.map(async (provider) => {
       let distance = null;
       
       // Calculate distance if location data is available
@@ -112,18 +113,17 @@ providerRouter.get('/providers', async (req, res) => {
         const pLat = provider.location.lat;
         const pLng = provider.location.lng;
         distance = getDistance(userLat, userLng, pLat, pLng);
-        console.log('distance: ', distance);
       }
       
       // Add distance to provider object before price calculation
       const providerWithDistance = { ...provider.toObject(), distance };
       
-      // Calculate total price with distance included
-      const totalPrice = Number(calculateProviderPrice(providerWithDistance, basePrice));
-      console.log(`Provider: ${provider.name}, Distance: ${distance}, Price: ${totalPrice}`);
+      // Calculate total price with distance included - ADD AWAIT HERE
+      const totalPrice = await calculateProviderPrice(providerWithDistance, basePrice);
+      //console.log(`Provider: ${provider.name}, Distance: ${distance}, Price: ${totalPrice}`);
       
       return { ...providerWithDistance, totalPrice };
-    });
+    }));
 
     res.status(200).json({ 
       success: true, 
