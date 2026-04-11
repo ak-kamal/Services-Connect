@@ -8,6 +8,7 @@ import NidUpload from './pages/NidUpload';
 import ProviderBooking from './pages/ProviderBooking';
 import SearchProvider from './pages/SearchProvider'; // Add this import
 import RefreshHandler from './components/RefreshHandler';
+import ChatWidget from "./components/ChatWidget";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -32,6 +33,8 @@ function App() {
         />
         <Route path="/provider-booking/:providerId" element={<PrivateRoute element={<ProviderBooking />} />} />
       </Routes>
+
+      <ChatWidget />
     </div>
   );
 }

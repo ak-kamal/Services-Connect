@@ -151,7 +151,7 @@ return (
         </div>
       </div>
 
-      {/* 🔥 HOME VIEW */}
+      {/*  HOME VIEW */}
       {activeView === 'home' && (
         <>
           <section className="hero bg-base-200 py-16">
@@ -168,7 +168,7 @@ return (
         </>
       )}
 
-      {/* 🔥 REQUESTS VIEW */}
+      {/*  REQUESTS VIEW */}
       {activeView === 'requests' && (
         <div className="max-w-4xl mx-auto px-4 py-10">
           <h2 className="text-3xl font-bold mb-6">My Requests</h2>
@@ -197,7 +197,7 @@ return (
                   {/* Chat button: show for Pending or Accepted */}
 {(offer.status === 'Pending' || offer.status === 'Accepted') && (
   <button
-    className="btn btn-sm btn-outline btn-primary mt-3 mr-2"
+    className="btn btn-sm bg-blue-500 text-white mt-3 mr-2 px-2"
     onClick={() => setChatOffer(offer)}
   >
     💬 Chat with Provider
@@ -207,7 +207,7 @@ return (
 {/* Work Done button: ONLY for Accepted */}
 {offer.status === 'Accepted' && (
   <button
-    className="btn btn-sm bg-blue-500 text-white mt-3"
+    className="btn btn-sm bg-blue-500 text-white mt-3 px-2"
     onClick={() => handleWorkDone(offer._id)}
   >
     Work Done

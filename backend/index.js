@@ -19,6 +19,9 @@ import User from "./models/User.js";
 import Message from "./models/Message.js";
 import Offer from "./models/Offer.js";
 
+import chatRouter from "./routes/chatRoutes.js";
+import providerTrustRouter from "./routes/providerTrustRoutes.js";
+
 dotenv.config();
 
 const app = express();
@@ -40,7 +43,7 @@ app.use("/api", providerRouter);
 app.use("/api", offerRouter);
 app.use("/api", slotRouter);
 app.use("/api", messageRouter);
-
+app.use("/api", chatRouter);
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 
 // Auth middleware: verify JWT and attach user info to socket
