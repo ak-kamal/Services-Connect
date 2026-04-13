@@ -1,6 +1,6 @@
 import UserModel from "../models/User.js";
 
-const PROVIDER_ROLES = ["electrician", "plumber", "carpenter", "house maid"];
+const PROVIDER_ROLES = ["electrician", "plumber", "carpenter", "housemaid"];
 
 const getProviderProfile = async (req, res) => {
     try {

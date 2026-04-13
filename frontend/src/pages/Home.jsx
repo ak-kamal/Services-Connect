@@ -1,22 +1,20 @@
+// frontend/src/pages/Home.jsx
+
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { handleSuccess, handleError } from '../utils';
-
-import ProviderCard from '../components/ProviderCard';
+import ChatWindow from '../components/ChatWindow';
 
 function Home() {
   const [loggedInUser, setLoggedInUser] = useState('');
   const [role, setRole] = useState('');
-  const [providers, setProviders] = useState([]);
-  const [nearbyOnly, setNearbyOnly] = useState(false);
+  const navigate = useNavigate();
 
-  // NEW STATES
   const [activeView, setActiveView] = useState('home');
   const [myOffers, setMyOffers] = useState([]);
   const [loadingOffers, setLoadingOffers] = useState(false);
-
-  const navigate = useNavigate();
+  const [chatOffer, setChatOffer] = useState(null);
 
   useEffect(() => {
     const storedName = localStorage.getItem('loggedInUser') || '';
@@ -45,48 +43,8 @@ function Home() {
     }, 1000);
   };
 
-  const categories = [
-    { title: 'Electricians', description: 'Electrical repairs...', role: 'electrician' },
-    { title: 'Plumbers', description: 'Pipe leaks...', role: 'plumber' },
-    { title: 'Carpenters', description: 'Furniture work...', role: 'carpenter' },
-    { title: 'House Maids', description: 'Cleaning...', role: 'house maid' },
-  ];
 
-  const fetchProviders = async (role) => {
-  try {
-    let url = `http://localhost:5000/api/providers?role=${role}`;
-
-    // 🔥 If nearby filter ON → include location
-    if (nearbyOnly) {
-      const user = JSON.parse(localStorage.getItem("userData")); // store this after login!
-
-      if (!user?.location?.lat) {
-        return handleError("Location not found. Please re-login.");
-      }
-
-      const { lat, lng } = user.location;
-
-      url += `&lat=${lat}&lng=${lng}&radius=5`; // 5km radius
-    }
-
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.success) {
-      setProviders(data.providers);
-    } else {
-      handleError("Failed to fetch providers");
-    }
-  } catch (error) {
-    handleError("Error fetching providers");
-  }
-};
-
-  const handleFindProviders = (role) => {
-    fetchProviders(role);
-  };
-
-  // 🔥 NEW FUNCTION
+  //offer checking by customer
   const fetchMyOffers = async () => {
     const customerId = localStorage.getItem("userId");
 
@@ -108,10 +66,45 @@ function Home() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-base-200">
 
-      {/* 🔹 Navbar */}
+//handle workDOne email
+const handleWorkDone = async (offerId) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/offer/${offerId}/complete`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`, // Use token if required
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Update the offer status in the state (optimistic update)
+      setMyOffers((prevOffers) =>
+        prevOffers.map((offer) =>
+          offer._id === offerId ? { ...offer, status: 'Completed' } : offer
+        )
+      );
+      handleSuccess('Work marked as completed! Email sent to customer and provider');
+    } else {
+      handleError('Failed to mark work as completed');
+    }
+  } catch (error) {
+    handleError('Error completing work');
+  }
+};
+
+
+
+
+return (
+    <div className="min-h-screen bg-base-200">
+      {/* Navbar */}
       <div className="navbar bg-base-100 shadow-md px-6">
         <div className="flex-1">
           <Link to="/" className="text-2xl font-bold text-primary">
@@ -121,7 +114,6 @@ function Home() {
 
         <div className="flex-none">
 
-          {/* 🔥 NEW BUTTON */}
           {loggedInUser && role === 'customer' && (
 
             <button
@@ -167,50 +159,12 @@ function Home() {
               <div className="max-w-3xl">
                 <h1 className="text-5xl font-bold">Book trusted home service providers</h1>
                 <p className="py-6">Find electricians, plumbers, carpenters and more.</p>
+                <Link to="/search-provider" className="btn btn-lg btn-primary">
+                Find Providers
+                </Link>
               </div>
             </div>
           </section>
-
-          <div className="max-w-6xl mx-auto px-4 mb-6 flex items-center gap-3">
-  <label className="label cursor-pointer gap-2">
-    <span className="label-text font-semibold">Nearby Only</span>
-    <input
-      type="checkbox"
-      className="toggle checked:bg-blue-500 checked:border-blue-500"
-      checked={nearbyOnly}
-      onChange={() => setNearbyOnly(!nearbyOnly)}
-    />
-  </label>
-</div>
-
-          <section className="max-w-6xl mx-auto px-4 pb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Explore Services</h2>
-
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {categories.map((item, index) => (
-                <div key={index} className="card bg-base-100 shadow-lg">
-                  <div className="card-body">
-                    <h3 className="card-title">{item.title}</h3>
-                    <button className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none" onClick={() => handleFindProviders(item.role)}>
-                      Find
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {providers.length > 0 && (
-            <section className="max-w-6xl mx-auto px-4 pb-16">
-              <h2 className="text-3xl font-bold text-center mb-8">Providers</h2>
-
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {providers.map((provider, index) => (
-                  <ProviderCard key={index} provider={provider} />
-                ))}
-              </div>
-            </section>
-          )}
         </>
       )}
 
@@ -240,6 +194,26 @@ function Home() {
                     {offer.status === 'Rejected' && '❌ Request rejected'}
                   </p>
 
+                  {/* Chat button: show for Pending or Accepted */}
+{(offer.status === 'Pending' || offer.status === 'Accepted') && (
+  <button
+    className="btn btn-sm btn-outline btn-primary mt-3 mr-2"
+    onClick={() => setChatOffer(offer)}
+  >
+    💬 Chat with Provider
+  </button>
+)}
+
+{/* Work Done button: ONLY for Accepted */}
+{offer.status === 'Accepted' && (
+  <button
+    className="btn btn-sm bg-blue-500 text-white mt-3"
+    onClick={() => handleWorkDone(offer._id)}
+  >
+    Work Done
+  </button>
+)}
+
                 </div>
               ))}
             </div>
@@ -252,6 +226,18 @@ function Home() {
             Back
           </button>
         </div>
+      )}
+
+      {chatOffer && (
+        <ChatWindow
+          offerId={chatOffer._id}
+          offerDate={chatOffer.date}
+          offerTimeSlot={chatOffer.timeSlot}
+          otherPartyName={chatOffer.providerId?.name || 'Provider'}
+          currentUserId={localStorage.getItem('userId')}
+          token={localStorage.getItem('token')}
+          onClose={() => setChatOffer(null)}
+        />
       )}
 
       <ToastContainer />

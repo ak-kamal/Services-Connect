@@ -26,7 +26,7 @@ const offerSchema = new mongoose.Schema({
   },
   status: { 
     type: String, 
-    enum: ['Pending', 'Accepted', 'Rejected'], 
+    enum: ['Pending', 'Accepted', 'Rejected', 'Completed'],  // Added 'Completed' here
     default: 'Pending' 
   },
 }, { timestamps: true });
