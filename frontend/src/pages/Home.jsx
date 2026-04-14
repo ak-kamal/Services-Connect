@@ -16,7 +16,11 @@ function Home() {
   const [loadingOffers, setLoadingOffers] = useState(false);
   const [chatOffer, setChatOffer] = useState(null);
   const [ratings, setRatings] = useState({});
+<<<<<<< HEAD
 const [reviews, setReviews] = useState({});
+=======
+  const [reviews, setReviews] = useState({});
+>>>>>>> origin/feature/payment
 
   useEffect(() => {
     const storedName = localStorage.getItem('loggedInUser') || '';
@@ -237,7 +241,11 @@ return (
                   <p><strong>Time:</strong> {offer.timeSlot}</p>
                   <p><strong>Category:</strong> {offer.category} </p>
                   <p><strong>Tier:</strong> {offer.tier} </p>
+<<<<<<< HEAD
                   <p><strong>Total Price:</strong> ${offer.totalPrice}</p>
+=======
+                  <p><strong>Total Price:</strong> {offer.totalPrice} BDT</p>
+>>>>>>> origin/feature/payment
                   <p><strong>Status:</strong> {offer.status}</p>
 
                   <p className="mt-2 font-semibold">

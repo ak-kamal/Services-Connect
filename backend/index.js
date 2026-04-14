@@ -23,8 +23,6 @@ import Offer from "./models/Offer.js";
 import chatRouter from "./routes/chatRoutes.js";
 import providerTrustRouter from "./routes/providerTrustRoutes.js";
 
-
-
 dotenv.config();
 
 const app = express();
@@ -38,13 +36,13 @@ const io = new Server(httpServer, {
 });
 
 app.use(cors({ origin: "http://localhost:5173" }));
-// 🔥 1. RAW webhook FIRST (only this route)
+//  1. RAW webhook FIRST (only this route)
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 
-// 🔥 2. JSON parser for everything else
+//  2. JSON parser for everything else
 app.use(express.json());
 
-// 🔥 3. Now register routes
+//  3. Now register routes
 app.use('/api/payment', paymentRoutes);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 

@@ -260,7 +260,11 @@ function ProviderProfile() {
                   <p><b>Category:</b> {o.category}</p>
                   <p><b>Tier:</b> {o.tier}</p>
                   <p><b>Distance:</b> {(Number(o.distance)/1000).toFixed(2)} km</p>
+<<<<<<< HEAD
                   <p><b>Total Price:</b> ${o.totalPrice}</p>
+=======
+                  <p><b>Total Price:</b> {o.totalPrice} BDT</p>
+>>>>>>> origin/feature/payment
                   <p><b>Status:</b> {o.status}</p>
 
                   {o.status === "Pending" && (
