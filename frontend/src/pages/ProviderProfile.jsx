@@ -167,14 +167,14 @@ function ProviderProfile() {
       <div className="max-w-4xl mx-auto p-6">
         <div className="tabs mb-6 gap-2">
   <button
-    className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "profile" && "tab-active"}`}
+    className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "profile" && "tab-active"} px-2`}
     onClick={() => setActiveView("profile")}
   >
     Profile
   </button>
 
   <button
-    className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "offers" && "tab-active"}`}
+    className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "offers" && "tab-active"} px-2`}
     onClick={() => setActiveView("offers")}
   >
     Offers
@@ -257,6 +257,10 @@ function ProviderProfile() {
                   <p><b>Date:</b> {o.date.split('T')[0]}</p>
                   <p><b>Time:</b> {o.timeSlot}</p>
                   <p><b>Address:</b> {o.address}</p>
+                  <p><b>Category:</b> {o.category}</p>
+                  <p><b>Tier:</b> {o.tier}</p>
+                  <p><b>Distance:</b> {(Number(o.distance)/1000).toFixed(2)} km</p>
+                  <p><b>Total Price:</b> {o.totalPrice} BDT</p>
                   <p><b>Status:</b> {o.status}</p>
 
                   {o.status === "Pending" && (
@@ -277,14 +281,16 @@ function ProviderProfile() {
                     </div>
                   )}
 
-                  {o.status !== "Rejected" && (
-                    <button
-                      className="btn btn-sm btn-outline btn-primary mt-2"
-                      onClick={() => setChatOffer(o)}
-                    >
-                      💬 Chat with Customer
-                    </button>
-                  )}
+                  {o.status !== "Rejected" && o.status !== "Paid" && (
+  <div className="flex justify-end mt-3">
+    <button
+      className="btn btn-sm bg-blue-500 text-white px-3"
+      onClick={() => setChatOffer(o)}
+    >
+      💬 Chat with Customer
+    </button>
+  </div>
+)}
                 </div>
               ))
             )}

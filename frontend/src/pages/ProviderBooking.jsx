@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import moment from 'moment';
 
 function ProviderBooking() {
   const { providerId } = useParams();
+  const location = useLocation();
+  const { category, tier, distance, totalPrice } = location.state || {};
 
   const [provider, setProvider] = useState(null);
   const [slots, setSlots] = useState([]);
@@ -92,7 +94,11 @@ function ProviderBooking() {
         customerId,
         timeSlot,
         date: formattedDate,
-        address: customerLocation.address
+        address: customerLocation.address,
+        category,
+  tier,
+  distance,
+  totalPrice
       }),
     });
 

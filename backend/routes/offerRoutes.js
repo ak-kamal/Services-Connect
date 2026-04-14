@@ -12,7 +12,18 @@ const offerRouter = express.Router();
 
 // POST OFFER 
 offerRouter.post('/offer', async (req, res) => {
-  const { providerId, customerId, timeSlot, date, address } = req.body;
+  const {
+  providerId,
+  customerId,
+  timeSlot,
+  date,
+  address,
+
+  category,
+  tier,
+  distance,
+  totalPrice
+} = req.body;
 
   try {
     const provider = await UserModel.findById(providerId);
@@ -40,16 +51,19 @@ offerRouter.post('/offer', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Slot is already booked' });
     }
 
-    const newOffer = new Offer({
-      providerId,
-      customerId,
-      timeSlot,
-      date,
-      address,
-      status: 'Pending',
-    });
+    const offer = new Offer({
+  providerId,
+  customerId,
+  timeSlot,
+  date,
+  address,
+  category,
+  tier,
+  distance,
+  totalPrice
+});
 
-    await newOffer.save();
+    await offer.save();
 
     res.status(200).json({ success: true, message: 'Offer sent successfully' });
 
@@ -233,6 +247,31 @@ offerRouter.put('/offer/:offerId/complete', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Failed to mark offer as completed', error });
+  }
+});
+
+offerRouter.put('/offer/:offerId/add-review', async (req, res) => {
+  try {
+    const { rating, review } = req.body;
+    const { offerId } = req.params;
+
+    const offer = await Offer.findById(offerId);
+
+    if (!offer) {
+      return res.status(404).json({ success: false, message: 'Offer not found' });
+    }
+
+    // Save rating + review
+    offer.rating = rating;
+    offer.review = review;
+
+    await offer.save();
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
   }
 });
 
