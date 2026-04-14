@@ -236,7 +236,14 @@ function SearchProvider() {
       {providers.length > 0 && (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-8 w-full">
           {providers.map((provider) => (
-            <ProviderCard key={provider._id} provider={provider} />
+            <ProviderCard 
+  key={provider._id} 
+  provider={provider}
+  category={category}
+  tier={tier}
+  distance={provider.distance}
+  totalPrice={provider.totalPrice}
+/>
           ))}
         </div>
       )}

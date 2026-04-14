@@ -2,13 +2,21 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-function ProviderCard({ provider }) {
+function ProviderCard({ provider, category, tier, distance, totalPrice }) {
+  console.log({ category, tier, distance, totalPrice });
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem('token') !== null;
 
   const handleCheckAvailability = () => {
     if (isLoggedIn) {
-      navigate(`/provider-booking/${provider._id}`);
+      navigate(`/provider-booking/${provider._id}`, {
+  state: {
+    category,
+    tier,
+    distance,
+    totalPrice
+  }
+});
     } else {
       navigate('/login');
     }
@@ -34,7 +42,7 @@ return (
             <p className="text-sm text-base-content/60">Rating: {provider.rating}/5</p>
             <p className="mt-2">Completed Jobs: {provider.completedJobs}</p>
             {provider.distance && (
-              <p className="mt-2">Distance: {(provider.distance / 1000).toFixed(1)} km</p>
+              <p className="mt-2">Distance: {(provider.distance / 1000).toFixed(2)} km</p>
             )}
             <p className="mt-2 font-semibold">Price: {JSON.stringify(provider.totalPrice)} BDT</p>
           </div>

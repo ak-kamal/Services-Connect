@@ -257,6 +257,10 @@ function ProviderProfile() {
                   <p><b>Date:</b> {o.date.split('T')[0]}</p>
                   <p><b>Time:</b> {o.timeSlot}</p>
                   <p><b>Address:</b> {o.address}</p>
+                  <p><b>Category:</b> {o.category}</p>
+                  <p><b>Tier:</b> {o.tier}</p>
+                  <p><b>Distance:</b> {(Number(o.distance)/1000).toFixed(2)} km</p>
+                  <p><b>Total Price:</b> ${o.totalPrice}</p>
                   <p><b>Status:</b> {o.status}</p>
 
                   {o.status === "Pending" && (
@@ -277,7 +281,7 @@ function ProviderProfile() {
                     </div>
                   )}
 
-                  {o.status !== "Rejected" && (
+                  {o.status !== "Rejected" && o.status !== "Paid" && (
   <div className="flex justify-end mt-3">
     <button
       className="btn btn-sm bg-blue-500 text-white px-3"
