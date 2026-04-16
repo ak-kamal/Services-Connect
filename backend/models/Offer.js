@@ -26,9 +26,17 @@ const offerSchema = new mongoose.Schema({
   },
   status: { 
     type: String, 
-    enum: ['Pending', 'Accepted', 'Rejected', 'Completed'],  // Added 'Completed' here
+    enum: ['Pending', 'Accepted', 'Rejected', 'Completed', 'Paid'],  // Added 'Completed' and 'Paid' here
     default: 'Pending' 
   },
+  category: { type: String },
+tier: { type: String },
+distance: { type: Number },
+totalPrice: { type: Number },
+
+// Rating
+rating: { type: Number, min: 1, max: 5 },
+review: { type: String },
 }, { timestamps: true });
 
 const Offer = mongoose.model('Offer', offerSchema);

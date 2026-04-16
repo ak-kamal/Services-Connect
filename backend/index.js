@@ -14,10 +14,14 @@ import providerRouter from "./routes/ProviderRoutes.js";
 import offerRouter from "./routes/offerRoutes.js";
 import slotRouter from "./routes/slotRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 import User from "./models/User.js";
 import Message from "./models/Message.js";
 import Offer from "./models/Offer.js";
+
+import chatRouter from "./routes/chatRoutes.js";
+import providerTrustRouter from "./routes/providerTrustRoutes.js";
 
 dotenv.config();
 
@@ -32,7 +36,14 @@ const io = new Server(httpServer, {
 });
 
 app.use(cors({ origin: "http://localhost:5173" }));
+//  1. RAW webhook FIRST (only this route)
+app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
+
+//  2. JSON parser for everything else
 app.use(express.json());
+
+//  3. Now register routes
+app.use('/api/payment', paymentRoutes);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use("/auth", authRouter);
@@ -40,7 +51,7 @@ app.use("/api", providerRouter);
 app.use("/api", offerRouter);
 app.use("/api", slotRouter);
 app.use("/api", messageRouter);
-
+app.use("/api", chatRouter);
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 
 // Auth middleware: verify JWT and attach user info to socket

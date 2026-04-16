@@ -162,6 +162,8 @@ function SearchProvider() {
 
   return (
     <div className="min-h-screen bg-base-200 flex flex-col items-center justify-center p-4">
+
+  <div className="bg-base-100 shadow-xl rounded-2xl p-8 w-full max-w-md">
       <div className="mb-6 w-full max-w-md">
         <label htmlFor="role" className="block text-lg font-semibold mb-2">Select Role</label>
         <select id="role" className="select select-bordered w-full" onChange={handleRoleChange} value={role}>
@@ -229,11 +231,19 @@ function SearchProvider() {
           Find Providers
         </button>
       )}
+      </div>
 
       {providers.length > 0 && (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-8 w-full">
           {providers.map((provider) => (
-            <ProviderCard key={provider._id} provider={provider} />
+            <ProviderCard 
+  key={provider._id} 
+  provider={provider}
+  category={category}
+  tier={tier}
+  distance={provider.distance}
+  totalPrice={provider.totalPrice}
+/>
           ))}
         </div>
       )}

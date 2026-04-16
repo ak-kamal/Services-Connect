@@ -52,7 +52,7 @@ function ChatWindow({ offerId, offerDate, offerTimeSlot, otherPartyName, current
 
     socket.emit('join_room', offerId);
 
-    // ✅ FIX: Remove any existing listener before adding new one
+    //  FIX: Remove any existing listener before adding new one
     socket.off('receive_message');
     
     socket.on('receive_message', (msg) => {
