@@ -14,10 +14,12 @@ import providerRouter from "./routes/ProviderRoutes.js";
 import offerRouter from "./routes/offerRoutes.js";
 import slotRouter from "./routes/slotRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
+import ComplainRouter from "./routes/ComplainRoutes.js";
 
 import User from "./models/User.js";
 import Message from "./models/Message.js";
 import Offer from "./models/Offer.js";
+import Complaint from "./models/Complaint.js";
 
 dotenv.config();
 
@@ -40,6 +42,9 @@ app.use("/api", providerRouter);
 app.use("/api", offerRouter);
 app.use("/api", slotRouter);
 app.use("/api", messageRouter);
+app.use("/api", ComplainRouter);
+
+
 
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 

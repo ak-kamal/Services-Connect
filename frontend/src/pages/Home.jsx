@@ -22,10 +22,17 @@ function Home() {
     setLoggedInUser(storedName);
     setRole(storedRole);
 
-    if (storedRole && storedRole !== 'customer') {
-      navigate('/provider-profile');
-    }
-  }, [navigate]);
+    if (storedRole === 'admin') {
+      navigate('/admin-dashboard', { replace: true });
+    } 
+    else if (
+      storedRole === 'electrician' ||
+      storedRole === 'plumber' ||
+      storedRole === 'carpenter' ||
+      storedRole === 'housemaid'
+    ) {
+      navigate('/provider-profile', { replace: true });
+    }}, [navigate]);
 
   const initial = useMemo(() => {
     return loggedInUser ? loggedInUser.charAt(0).toUpperCase() : '';
@@ -100,8 +107,6 @@ const handleWorkDone = async (offerId) => {
 };
 
 
-
-
 return (
     <div className="min-h-screen bg-base-200">
       {/* Navbar */}
@@ -114,8 +119,19 @@ return (
 
         <div className="flex-none">
 
-          {loggedInUser && role === 'customer' && (
+        {loggedInUser && role === 'customer' && (
 
+          <>
+
+            {/* 🔴 Complaint Button */}
+            <button
+              className="btn btn-sm btn-error mr-3"
+              onClick={() => navigate('/complaint')}
+            >
+              Complaint
+            </button>
+
+            {/* 🔵 My Requests Button */}
             <button
               className="btn btn-sm btn-primary mr-3"
               onClick={() => {
@@ -126,8 +142,8 @@ return (
               My Requests
             </button>
 
-
-          )}
+          </>
+        )}
 
           {!loggedInUser ? (
             <Link to="/login" className="btn btn-primary">
@@ -212,7 +228,9 @@ return (
   >
     Work Done
   </button>
+
 )}
+
 
                 </div>
               ))}

@@ -41,6 +41,8 @@ function Login() {
       const result = await response.json()
       const { success, message, jwtToken, name, role, userId, location, error } = result
 
+      console.log("ROLE:", role);
+
       if (success) {
         handleSuccess(message)
         localStorage.setItem('token', jwtToken)
@@ -56,11 +58,13 @@ function Login() {
   }))
 
         setTimeout(() => {
-          if (role === 'customer') {
-            navigate('/')
-          } else {
-            navigate('/provider-profile')
-          }
+          if (role === 'admin') {
+              navigate('/admin-dashboard', { replace: true })
+            } else if (role === 'customer') {
+              navigate('/')
+            } else {
+              navigate('/provider-profile', { replace: true })
+            }
         }, 1000)
       } else if (error) {
         const details = error?.details?.[0]?.message || 'Something went wrong'
