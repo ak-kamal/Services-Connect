@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-function ProviderCard({ provider, category, tier, distance, totalPrice }) {
+function ProviderCard({ provider, category, tier, distance, totalPrice, recommendationScore }) {
   console.log({ category, tier, distance, totalPrice });
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem('token') !== null;
@@ -28,8 +28,13 @@ function ProviderCard({ provider, category, tier, distance, totalPrice }) {
   console.log('Availability:', provider.isAvailable);
 
 return (
-    <div className="card bg-base-100 shadow-lg">
+    <div className="card bg-base-100 shadow-lg relative">
       <div className="card-body">
+        {/* Rank Display: Top right corner */}
+        <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-lg font-bold">
+          Rank: {provider.rank}
+        </div>
+
         <div className="flex items-center">
           <div className="avatar">
             <div className="w-12 rounded-full bg-primary text-primary-content flex items-center justify-center">
@@ -45,6 +50,7 @@ return (
               <p className="mt-2">Distance: {(provider.distance / 1000).toFixed(2)} km</p>
             )}
             <p className="mt-2 font-semibold">Price: {JSON.stringify(provider.totalPrice)} BDT</p>
+            <p className="mt-2 text-lg font-semibold">Recommendation Score: {recommendationScore.toFixed(2)}</p>
           </div>
         </div>
         <div className="card-actions justify-end mt-4">

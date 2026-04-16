@@ -11,7 +11,7 @@ const signupValidation = (req, res, next) => {
             .required(),
         dateOfBirth: Joi.string().required(),
   nidImageUrl: Joi.string().uri().required(),
-  nidImagePublicIad: Joi.string().required(),
+  nidImagePublicId: Joi.string().required(),
 
     location: Joi.object({
       lat: Joi.number().required(),
