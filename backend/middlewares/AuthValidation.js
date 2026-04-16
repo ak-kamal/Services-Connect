@@ -1,3 +1,4 @@
+//backend/middlewares/AuthValidation.js:
 import Joi from "joi";
 
 const signupValidation = (req, res, next) => {
@@ -10,7 +11,7 @@ const signupValidation = (req, res, next) => {
             .required(),
         dateOfBirth: Joi.string().required(),
   nidImageUrl: Joi.string().uri().required(),
-  nidImagePublicId: Joi.string().required(),
+  nidImagePublicIad: Joi.string().required(),
 
     location: Joi.object({
       lat: Joi.number().required(),
