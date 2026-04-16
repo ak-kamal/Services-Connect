@@ -28,7 +28,7 @@ const userSchema = new Schema({
   role: {
     type: String,
     required: true,
-    enum: ["customer", "electrician", "plumber", "carpenter", "housemaid"],
+    enum: ["customer", "electrician", "plumber", "carpenter", "housemaid", "admin"],
     default: "customer",
   },
   certification: {

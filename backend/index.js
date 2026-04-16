@@ -15,10 +15,12 @@ import offerRouter from "./routes/offerRoutes.js";
 import slotRouter from "./routes/slotRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import ComplainRouter from "./routes/ComplainRoutes.js";
 
 import User from "./models/User.js";
 import Message from "./models/Message.js";
 import Offer from "./models/Offer.js";
+import Complaint from "./models/Complaint.js";
 
 import chatRouter from "./routes/chatRoutes.js";
 import providerTrustRouter from "./routes/providerTrustRoutes.js";
@@ -52,6 +54,10 @@ app.use("/api", offerRouter);
 app.use("/api", slotRouter);
 app.use("/api", messageRouter);
 app.use("/api", chatRouter);
+app.use("/api", ComplainRouter);
+
+
+
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 
 // Auth middleware: verify JWT and attach user info to socket

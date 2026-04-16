@@ -16,11 +16,7 @@ function Home() {
   const [loadingOffers, setLoadingOffers] = useState(false);
   const [chatOffer, setChatOffer] = useState(null);
   const [ratings, setRatings] = useState({});
-<<<<<<< HEAD
-const [reviews, setReviews] = useState({});
-=======
   const [reviews, setReviews] = useState({});
->>>>>>> origin/feature/payment
 
   useEffect(() => {
     const storedName = localStorage.getItem('loggedInUser') || '';
@@ -28,10 +24,17 @@ const [reviews, setReviews] = useState({});
     setLoggedInUser(storedName);
     setRole(storedRole);
 
-    if (storedRole && storedRole !== 'customer') {
-      navigate('/provider-profile');
-    }
-  }, [navigate]);
+    if (storedRole === 'admin') {
+      navigate('/admin-dashboard', { replace: true });
+    } 
+    else if (
+      storedRole === 'electrician' ||
+      storedRole === 'plumber' ||
+      storedRole === 'carpenter' ||
+      storedRole === 'housemaid'
+    ) {
+      navigate('/provider-profile', { replace: true });
+    }}, [navigate]);
 
   const initial = useMemo(() => {
     return loggedInUser ? loggedInUser.charAt(0).toUpperCase() : '';
@@ -153,8 +156,6 @@ const handleWorkDone = async (offerId) => {
 };
 
 
-
-
 return (
     <div className="min-h-screen bg-base-200">
       {/* Navbar */}
@@ -167,8 +168,19 @@ return (
 
         <div className="flex-none">
 
-          {loggedInUser && role === 'customer' && (
+        {loggedInUser && role === 'customer' && (
 
+          <>
+
+            {/* 🔴 Complaint Button */}
+            <button
+              className="btn btn-sm btn-error mr-3"
+              onClick={() => navigate('/complaint')}
+            >
+              Complaint
+            </button>
+
+            {/* 🔵 My Requests Button */}
             <button
               className="btn btn-sm btn-primary mr-3"
               onClick={() => {
@@ -179,8 +191,8 @@ return (
               My Requests
             </button>
 
-
-          )}
+          </>
+        )}
 
           {!loggedInUser ? (
             <Link to="/login" className="btn btn-primary">
@@ -241,11 +253,7 @@ return (
                   <p><strong>Time:</strong> {offer.timeSlot}</p>
                   <p><strong>Category:</strong> {offer.category} </p>
                   <p><strong>Tier:</strong> {offer.tier} </p>
-<<<<<<< HEAD
-                  <p><strong>Total Price:</strong> ${offer.totalPrice}</p>
-=======
                   <p><strong>Total Price:</strong> {offer.totalPrice} BDT</p>
->>>>>>> origin/feature/payment
                   <p><strong>Status:</strong> {offer.status}</p>
 
                   <p className="mt-2 font-semibold">
@@ -272,6 +280,7 @@ return (
   >
     Work Done
   </button>
+
 )}
 
 {offer.status === 'Completed' && (
