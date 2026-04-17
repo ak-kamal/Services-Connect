@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import moment from 'moment';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function ProviderBooking() {
   const { providerId } = useParams();
@@ -9,20 +10,17 @@ function ProviderBooking() {
   const [provider, setProvider] = useState(null);
   const [slots, setSlots] = useState([]);
   const [dates, setDates] = useState([]);
-
-  // NEW STATE
   const [slotOffers, setSlotOffers] = useState([]);
 
-  // ---------------- FETCH ----------------
+  const { t } = useLanguage();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Provider
         const providerRes = await fetch(`http://localhost:5000/api/providers/${providerId}`);
         const providerData = await providerRes.json();
         if (providerData.success) setProvider(providerData.provider);
 
-        // Slots
         const slotsRes = await fetch(`http://localhost:5000/api/slots?providerId=${providerId}`);
         const slotsData = await slotsRes.json();
         if (slotsData.success) {
@@ -38,7 +36,6 @@ function ProviderBooking() {
           setDates(uniqueDates);
         }
 
-        // Fetch slot offers
         const offersRes = await fetch(
           `http://localhost:5000/api/provider-slot-offers?providerId=${providerId}`
         );
@@ -56,7 +53,6 @@ function ProviderBooking() {
     fetchData();
   }, [providerId]);
 
-  // ---------------- HELPER ----------------
   const getSlotStatus = (timeSlot, date) => {
     const matchedOffer = slotOffers.find(
       (offer) =>
@@ -72,7 +68,6 @@ function ProviderBooking() {
     return 'available';
   };
 
-  // ---------------- BOOK ----------------
   const handleBookSlot = async (slotId, timeSlot, date) => {
     const customerId = localStorage.getItem('userId');
     const customerLocation = JSON.parse(localStorage.getItem('location'));
@@ -101,7 +96,6 @@ function ProviderBooking() {
     if (data.success) {
       toast.success("Offer sent");
 
-      // refresh slot offers
       const offersRes = await fetch(
         `http://localhost:5000/api/provider-slot-offers?providerId=${providerId}`
       );
@@ -116,7 +110,6 @@ function ProviderBooking() {
     }
   };
 
-  // ---------------- UI ----------------
   return (
     <div className="provider-booking">
       {provider && (
@@ -129,7 +122,7 @@ function ProviderBooking() {
       <table className="table-auto w-full">
         <thead>
           <tr>
-            <th>Time</th>
+            <th>{t('booking.time')}</th>
             {dates.map((date, i) => (
               <th key={i}>{moment(date).format('DD MMM')}</th>
             ))}
@@ -158,10 +151,10 @@ function ProviderBooking() {
                       onClick={() => handleBookSlot(null, timeSlot, date)}
                     >
                       {status === 'booked'
-                        ? 'Booked'
+                        ? t('booking.booked')
                         : status === 'requested'
-                        ? 'Requested'
-                        : 'Available'}
+                        ? t('booking.requested')
+                        : t('booking.available')}
                     </button>
                   </td>
                 );

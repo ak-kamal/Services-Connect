@@ -1,10 +1,11 @@
-// frontend/src/components/ProviderCard.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function ProviderCard({ provider }) {
   const [isAvailable, setIsAvailable] = useState(true);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // Check if the user is logged in by checking for a token in localStorage
   const isLoggedIn = localStorage.getItem('token') !== null;
@@ -40,7 +41,7 @@ function ProviderCard({ provider }) {
             className={`btn btn-sm ${isAvailable ? 'btn-outline btn-primary' : 'btn-disabled'}`}
             onClick={handleCheckAvailability}
           >
-            {isAvailable ? 'Check Availability' : 'No slots available'}
+            {isAvailable ? t('provider.checkAvailability') : t('provider.noSlots')}
           </button>
         </div>
       </div>
