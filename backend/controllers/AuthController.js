@@ -2,6 +2,7 @@ import UserModel from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import createProviderSlots from "./SlotController.js";
+import Alert from "../models/Alert.js";
 
 const signup = async (req, res) => {
     try {
@@ -16,17 +17,48 @@ const signup = async (req, res) => {
         }
 
         // validate location
-    if (!location || !location.lat || !location.lng) {
-      return res.status(400).json({
-        message: "Location is required",
-        success: false,
-      });
-    }
+        if (!location || !location.lat || !location.lng) {
+            return res.status(400).json({
+                message: "Location is required",
+                success: false,
+            });
+        }
 
         const userModel = new UserModel({ name, email, password, role, dateOfBirth, nidImageUrl, nidImagePublicId, location });
         userModel.password = await bcrypt.hash(password, 10);
 
         await userModel.save();
+
+        // ─── ANOMALY DETECTION: Multiple accounts from same IP ───
+        const clientIp = req.ip || req.connection.remoteAddress;
+        
+        // Find accounts created from this IP in last 24 hours
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const recentAccountsFromIp = await UserModel.find({
+            createdAt: { $gte: twentyFourHoursAgo },
+            signupIp: clientIp
+        });
+
+        // If this is the 2nd or more account from this IP, create alert
+        if (recentAccountsFromIp.length >= 1) {
+            await Alert.create({
+                type: "1",
+                message: `Multiple accounts created from IP: ${clientIp}`,
+                details: {
+                    ip: clientIp,
+                    newUserId: userModel._id,
+                    newUserEmail: email,
+                    previousUserIds: recentAccountsFromIp.map(u => u._id),
+                    previousUserEmails: recentAccountsFromIp.map(u => u.email),
+                    totalAccountsIn24h: recentAccountsFromIp.length + 1
+                }
+            });
+        }
+
+        // Store IP with user for future tracking
+        userModel.signupIp = clientIp;
+        await userModel.save();
+        // ─────────────────────────────────────────────────────────
 
         // Create slots for the provider
         if (role !== 'customer') {

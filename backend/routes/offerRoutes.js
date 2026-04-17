@@ -3,6 +3,7 @@ import express from 'express';
 import UserModel from '../models/User.js';
 import Offer from '../models/Offer.js';
 import Slot from '../models/Slot.js';
+import Alert from "../models/Alert.js";
 
 import sendWorkDoneEmail from '../utils/nodemailer.js';  // Import Nodemailer utility
 
@@ -13,17 +14,16 @@ const offerRouter = express.Router();
 // POST OFFER 
 offerRouter.post('/offer', async (req, res) => {
   const {
-  providerId,
-  customerId,
-  timeSlot,
-  date,
-  address,
-
-  category,
-  tier,
-  distance,
-  totalPrice
-} = req.body;
+    providerId,
+    customerId,
+    timeSlot,
+    date,
+    address,
+    category,
+    tier,
+    distance,
+    totalPrice
+  } = req.body;
 
   try {
     const provider = await UserModel.findById(providerId);
@@ -51,17 +51,53 @@ offerRouter.post('/offer', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Slot is already booked' });
     }
 
+    // ─── ANOMALY DETECTION: Customer offer limit ───
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const offersToday = await Offer.countDocuments({
+      customerId,
+      createdAt: { $gte: todayStart, $lte: todayEnd }
+    });
+
+    // Create alert if this is the 6th or more offer today
+    if (offersToday >= 5) {
+      // Check if alert already exists for this customer today (avoid duplicates)
+      const existingAlert = await Alert.findOne({
+        type: "2",
+        "details.customerId": customerId.toString(),
+        createdAt: { $gte: todayStart }
+      });
+
+      if (!existingAlert) {
+        await Alert.create({
+          type: "2",
+          message: `Customer has sent ${offersToday + 1} offers today`,
+          details: {
+            customerId: customerId,
+            customerName: customer.name,
+            customerEmail: customer.email,
+            offerCount: offersToday + 1,
+            date: todayStart.toISOString().split('T')[0]
+          }
+        });
+      }
+    }
+    // ─────────────────────────────────────────────────
+
     const offer = new Offer({
-  providerId,
-  customerId,
-  timeSlot,
-  date,
-  address,
-  category,
-  tier,
-  distance,
-  totalPrice
-});
+      providerId,
+      customerId,
+      timeSlot,
+      date,
+      address,
+      category,
+      tier,
+      distance,
+      totalPrice
+    });
 
     await offer.save();
 

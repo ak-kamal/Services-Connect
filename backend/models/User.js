@@ -80,7 +80,10 @@ const userSchema = new Schema({
   totalEarnings: {
     type: Number,
     default: 0,
-  }
+  },
+  signupIp: {
+  type: String,
+},
 });
 
 const UserModel = mongoose.model("User", userSchema);
