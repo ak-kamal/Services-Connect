@@ -114,9 +114,9 @@ function ProviderProfile() {
   };
 
   const getCertificationFileUrl = () => {
-  if (!certification?.fileUrl || !API_BASE_URL) return "";
-  return `${API_BASE_URL}${certification.fileUrl}`;
-};
+    if (!certification?.fileUrl || !API_BASE_URL) return "";
+    return `${API_BASE_URL}${certification.fileUrl}`;
+  };
 
   const handleLogout = () => {
     localStorage.clear();
@@ -136,6 +136,12 @@ function ProviderProfile() {
       method: "PUT",
     });
     fetchOffers();
+  };
+
+  const handleStats = () => {
+    const providerId = localStorage.getItem("userId");
+    console.log(providerId);
+    navigate(`/provider/stats/` + providerId);
   };
 
   return (
@@ -166,20 +172,27 @@ function ProviderProfile() {
       {/* CONTENT */}
       <div className="max-w-4xl mx-auto p-6">
         <div className="tabs mb-6 gap-2">
-  <button
-    className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "profile" && "tab-active"} px-2`}
-    onClick={() => setActiveView("profile")}
-  >
-    Profile
-  </button>
+          <button
+            className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "profile" && "tab-active"} px-2`}
+            onClick={() => setActiveView("profile")}
+          >
+            Profile
+          </button>
 
-  <button
-    className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "offers" && "tab-active"} px-2`}
-    onClick={() => setActiveView("offers")}
-  >
-    Offers
-  </button>
-</div>
+          <button
+            className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "offers" && "tab-active"} px-2`}
+            onClick={() => setActiveView("offers")}
+          >
+            Offers
+          </button>
+
+          <button
+            className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "stats" && "tab-active"} px-2`}
+            onClick={handleStats}
+          >
+            Stats
+          </button>
+        </div>
 
         {/* PROFILE */}
         {activeView === "profile" && (
@@ -214,29 +227,29 @@ function ProviderProfile() {
             </form>
 
             {certification?.fileUrl && (
-  <div className="mt-5 p-4 rounded-lg border border-base-300 bg-base-200/40">
-    <p className="text-sm">
-      Current file:{" "}
-      <span className="font-semibold">{certification.fileName}</span>
-    </p>
+              <div className="mt-5 p-4 rounded-lg border border-base-300 bg-base-200/40">
+                <p className="text-sm">
+                  Current file:{" "}
+                  <span className="font-semibold">{certification.fileName}</span>
+                </p>
 
-    <p className="text-sm mt-1">
-      Uploaded on:{" "}
-      {certification.uploadedAt
-        ? new Date(certification.uploadedAt).toLocaleString()
-        : "N/A"}
-    </p>
+                <p className="text-sm mt-1">
+                  Uploaded on:{" "}
+                  {certification.uploadedAt
+                    ? new Date(certification.uploadedAt).toLocaleString()
+                    : "N/A"}
+                </p>
 
-    <a
-      href={getCertificationFileUrl()}
-      target="_blank"
-      rel="noreferrer"
-      className="link link-info mt-2 inline-block"
-    >
-      View uploaded certification
-    </a>
-  </div>
-)}
+                <a
+                  href={getCertificationFileUrl()}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="link link-info mt-2 inline-block"
+                >
+                  View uploaded certification
+                </a>
+              </div>
+            )}
           </div>
         )}
 
@@ -260,7 +273,9 @@ function ProviderProfile() {
                   <p><b>Category:</b> {o.category}</p>
                   <p><b>Tier:</b> {o.tier}</p>
                   <p><b>Distance:</b> {(Number(o.distance)/1000).toFixed(2)} km</p>
-                  <p><b>Total Price:</b> {o.totalPrice} BDT</p>
+                  
+                  {/* Show provider earnings (after commission) */}
+                  <p><b>Wages:</b> {(o.providerEarnings || (o.totalPrice * 0.85).toFixed(2))} BDT</p>
                   <p><b>Status:</b> {o.status}</p>
 
                   {o.status === "Pending" && (
@@ -280,17 +295,6 @@ function ProviderProfile() {
                       </button>
                     </div>
                   )}
-
-                  {o.status !== "Rejected" && o.status !== "Paid" && (
-  <div className="flex justify-end mt-3">
-    <button
-      className="btn btn-sm bg-blue-500 text-white px-3"
-      onClick={() => setChatOffer(o)}
-    >
-      💬 Chat with Customer
-    </button>
-  </div>
-)}
                 </div>
               ))
             )}

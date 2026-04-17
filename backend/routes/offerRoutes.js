@@ -60,10 +60,14 @@ offerRouter.post('/offer', async (req, res) => {
   category,
   tier,
   distance,
-  totalPrice
+  totalPrice,
+  commission: Number((totalPrice * 0.15).toFixed(2)),  // 15% commission
+  providerEarnings: Number((totalPrice * 0.85).toFixed(2))  // 85% goes to provider
+//  currentRatingOfProvider : provider.rating
 });
 
     await offer.save();
+    provider.pendingOffers += 1;
 
     res.status(200).json({ success: true, message: 'Offer sent successfully' });
 
@@ -109,6 +113,8 @@ offerRouter.put('/offer/:offerId/accept', async (req, res) => {
 
     // Accept offer
     offer.status = 'Accepted';
+    //const provider = await UserModel.findById(offer.providerId);
+    provider.pendingOffers -= 1;
     await offer.save();
 
     // Book slot
@@ -154,6 +160,8 @@ offerRouter.put('/offer/:offerId/reject', async (req, res) => {
     }
 
     offer.status = 'Rejected';
+    const provider = await UserModel.findById(offer.providerId);
+    provider.pendingOffers -= 1;
     await offer.save();
 
     res.status(200).json({ success: true, message: 'Offer rejected' });

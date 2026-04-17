@@ -37,6 +37,20 @@ totalPrice: { type: Number },
 // Rating
 rating: { type: Number, min: 1, max: 5 },
 review: { type: String },
+currentRatingOfProvider: {
+  type: Number,
+  default: 0
+},
+// backend/models/Offer.js - Add these fields to the schema
+
+commission: { 
+  type: Number, 
+  default: 0 
+},
+providerEarnings: { 
+  type: Number, 
+  default: 0 
+},
 }, { timestamps: true });
 
 const Offer = mongoose.model('Offer', offerSchema);
