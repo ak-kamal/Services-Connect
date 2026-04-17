@@ -112,16 +112,31 @@ function SearchProvider() {
     const data = await response.json();
 
     if (data.success) {
+
+      // Sort providers by recommendation score (already sorted in the backend)
+      let sortedProviders = data.providers;
+
+
       // Filter providers by distance if nearbyOnly is true
       if (nearbyOnly) {
         const maxDistance = 5000; // 5km in meters
-        const filteredProviders = data.providers.filter(provider => 
-          provider.distance !== null && provider.distance <= maxDistance
-        );
-        setProviders(filteredProviders);
-      } else {
-        setProviders(data.providers);
-      }
+
+        sortedProviders = sortedProviders.filter(provider => 
+            provider.distance !== null && provider.distance <= maxDistance
+          );
+        }
+
+       // Sort providers by recommendation score (if not sorted already)
+        sortedProviders.sort((a, b) => b.recommendationScore - a.recommendationScore);
+     
+        // Assign rank to each provider
+        sortedProviders = sortedProviders.map((provider, index) => ({
+          ...provider,
+          rank: index + 1,  // Rank starts from 1
+        }));
+
+        setProviders(sortedProviders);
+
     } else {
       alert("Failed to fetch providers");
     }
@@ -243,6 +258,7 @@ function SearchProvider() {
   tier={tier}
   distance={provider.distance}
   totalPrice={provider.totalPrice}
+  recommendationScore={provider.recommendationScore} // Optional: Show score or rank
 />
           ))}
         </div>

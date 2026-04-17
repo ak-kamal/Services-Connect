@@ -122,13 +122,47 @@ providerRouter.get('/providers', async (req, res) => {
       const totalPrice = await calculateProviderPrice(providerWithDistance, basePrice);
       //console.log(`Provider: ${provider.name}, Distance: ${distance}, Price: ${totalPrice}`);
       
-      return { ...providerWithDistance, totalPrice };
+     
+
+      // Calculate recommendation score for this provider
+      const MAX_DISTANCE = 5000; // Maximum distance (in meters), adjust as needed
+
+      // Normalize and calculate factors
+      const normalizedDistance = Math.min(distance, MAX_DISTANCE);  // Cap the distance
+      const distanceFactor = 1 / (1 + normalizedDistance * normalizedDistance);
+
+      const normalizedPrice = Math.max(totalPrice, 1);  // Avoid division by zero for price
+      const priceFactor = 1 / (normalizedPrice);  // Lower price is better
+
+      const jobsFactor = provider.completedJobs / (1 + provider.completedJobs + 1);  // More jobs are better
+
+      // Weighting factors (adjust as needed)
+      const w_distance = 0.5;
+      const w_price = 0.3;
+      const w_jobs = 0.2;
+
+      console.log("Normalized Distance Factor:", distanceFactor);
+      console.log("Price Factor:", priceFactor);
+      console.log("Jobs Factor:", jobsFactor);
+
+      // Calculate recommendation score
+      const recommendationScore = (w_distance * distanceFactor) + (w_price * priceFactor) + (w_jobs * jobsFactor);
+      console.log("Recommendation Score:", recommendationScore);
+     
+     
+     
+      return { ...providerWithDistance, totalPrice, recommendationScore };
     }));
+
+    
+     const rankedProviders = providersWithPriceAndDistance.sort((a, b) => b.recommendationScore - a.recommendationScore);
+
+
 
     res.status(200).json({ 
       success: true, 
-      providers: providersWithPriceAndDistance,
-      searchRadius: radius || 5 // Send radius to frontend for filtering
+      providers: rankedProviders, //providersWithPriceAndDistance,
+      searchRadius: radius || 5 
     });
   } catch (error) {
     res.status(500).json({
