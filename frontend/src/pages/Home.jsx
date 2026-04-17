@@ -5,6 +5,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { handleSuccess, handleError } from '../utils';
 import ChatWindow from '../components/ChatWindow';
+import LanguageToggle from '../components/LanguageToggle';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function Home() {
   const [loggedInUser, setLoggedInUser] = useState('');
@@ -17,6 +19,8 @@ function Home() {
   const [chatOffer, setChatOffer] = useState(null);
   const [ratings, setRatings] = useState({});
   const [reviews, setReviews] = useState({});
+
+  const { t } = useLanguage();
 
   useEffect(() => {
     const storedName = localStorage.getItem('loggedInUser') || '';
@@ -162,11 +166,12 @@ return (
       <div className="navbar bg-base-100 shadow-md px-6">
         <div className="flex-1">
           <Link to="/" className="text-2xl font-bold text-primary">
-            Services Connect
+            {t('nav.brand')}
           </Link>
         </div>
 
-        <div className="flex-none">
+        <div className="flex-none gap-1">
+          <LanguageToggle />
 
         {loggedInUser && role === 'customer' && (
 
@@ -188,7 +193,7 @@ return (
                 fetchMyOffers();
               }}
             >
-              My Requests
+              {t('nav.myRequests')}
             </button>
 
           </>
@@ -196,7 +201,7 @@ return (
 
           {!loggedInUser ? (
             <Link to="/login" className="btn btn-primary">
-              Login / Signup
+              {t('nav.loginSignup')}
             </Link>
           ) : (
             <div className="dropdown dropdown-end">
@@ -209,14 +214,14 @@ return (
               <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
                 <li className="px-2 py-1 font-semibold">{loggedInUser}</li>
                 <li className="px-2 py-1 text-sm capitalize">{role}</li>
-                <li><button onClick={handleLogout}>Logout</button></li>
+                <li><button onClick={handleLogout}>{t('common.logout')}</button></li>
               </ul>
             </div>
           )}
         </div>
       </div>
 
-      {/*  HOME VIEW */}
+      {/* HOME VIEW */}
       {activeView === 'home' && (
         <>
           <section className="hero bg-base-200 py-16">
@@ -236,12 +241,12 @@ return (
       {/*  REQUESTS VIEW */}
       {activeView === 'requests' && (
         <div className="max-w-4xl mx-auto px-4 py-10">
-          <h2 className="text-3xl font-bold mb-6">My Requests</h2>
+          <h2 className="text-3xl font-bold mb-6">{t('requests.title')}</h2>
 
           {loadingOffers ? (
-            <p>Loading...</p>
+            <p>{t('common.loading')}</p>
           ) : myOffers.length === 0 ? (
-            <p>No booking requests yet</p>
+            <p>{t('requests.noRequests')}</p>
           ) : (
             <div className="space-y-4">
               {myOffers.map((offer) => (
@@ -257,9 +262,9 @@ return (
                   <p><strong>Status:</strong> {offer.status}</p>
 
                   <p className="mt-2 font-semibold">
-                    {offer.status === 'Pending' && '⏳ Waiting for provider...'}
-                    {offer.status === 'Accepted' && `✅ ${offer.providerId?.name} accepted your request`}
-                    {offer.status === 'Rejected' && '❌ Request rejected'}
+                    {offer.status === 'Pending' && t('requests.pending')}
+                    {offer.status === 'Accepted' && t('requests.accepted', { name: offer.providerId?.name })}
+                    {offer.status === 'Rejected' && t('requests.rejected')}
                   </p>
 
                   {/* Chat button: show for Pending or Accepted */}
@@ -331,7 +336,7 @@ return (
             className="btn btn-primary mt-6"
             onClick={() => setActiveView('home')}
           >
-            Back
+            {t('common.back')}
           </button>
         </div>
       )}

@@ -5,6 +5,8 @@ import { BadgeCheck } from "lucide-react";
 import { handleError, handleSuccess } from "../utils";
 import { useOffers } from "../hooks/useOffers";
 import ChatWindow from "../components/ChatWindow";
+import LanguageToggle from "../components/LanguageToggle";
+import { useLanguage } from "../i18n/LanguageContext";
 
 function ProviderProfile() {
   const [loggedInUser, setLoggedInUser] = useState("");
@@ -20,14 +22,10 @@ function ProviderProfile() {
 
   const navigate = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const { t } = useLanguage();
 
-  // Offers Hook
-  const { offers, loadingOffers, fetchOffers } = useOffers(
-    API_BASE_URL,
-    activeView
-  );
+  const { offers, loadingOffers, fetchOffers } = useOffers(API_BASE_URL, activeView);
 
-  // Auth + Profile
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedName = localStorage.getItem("loggedInUser") || "";
@@ -47,8 +45,7 @@ function ProviderProfile() {
 
         const data = await res.json();
 
-        if (!res.ok || !data.success)
-          throw new Error(data.message);
+        if (!res.ok || !data.success) throw new Error(data.message);
 
         const { profile } = data;
         setLoggedInUser(profile.name);
@@ -65,18 +62,14 @@ function ProviderProfile() {
     fetchProfile();
   }, [API_BASE_URL, navigate]);
 
-  const initial = useMemo(
-    () => loggedInUser?.charAt(0).toUpperCase(),
-    [loggedInUser]
-  );
+  const initial = useMemo(() => loggedInUser?.charAt(0).toUpperCase(), [loggedInUser]);
 
   const formattedRole = useMemo(
     () => role?.charAt(0).toUpperCase() + role.slice(1),
     [role]
   );
 
-  const hasVerifiedCertification =
-    certification?.fileUrl && certification?.verified;
+  const hasVerifiedCertification = certification?.fileUrl && certification?.verified;
 
   const handleUploadCertification = async (e) => {
     e.preventDefault();
@@ -90,19 +83,15 @@ function ProviderProfile() {
     try {
       setIsUploading(true);
 
-      const res = await fetch(
-        `${API_BASE_URL}/api/certification`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/certification`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
 
       const data = await res.json();
 
-      if (!res.ok || !data.success)
-        throw new Error(data.message);
+      if (!res.ok || !data.success) throw new Error(data.message);
 
       setCertification(data.certification);
       handleSuccess("Uploaded!");
@@ -125,16 +114,12 @@ function ProviderProfile() {
   };
 
   const handleAccept = async (id) => {
-    await fetch(`${API_BASE_URL}/api/offer/${id}/accept`, {
-      method: "PUT",
-    });
+    await fetch(`${API_BASE_URL}/api/offer/${id}/accept`, { method: "PUT" });
     fetchOffers();
   };
 
   const handleReject = async (id) => {
-    await fetch(`${API_BASE_URL}/api/offer/${id}/reject`, {
-      method: "PUT",
-    });
+    await fetch(`${API_BASE_URL}/api/offer/${id}/reject`, { method: "PUT" });
     fetchOffers();
   };
 
@@ -148,9 +133,9 @@ function ProviderProfile() {
     <div className="min-h-screen bg-base-200">
       {/* NAVBAR */}
       <div className="navbar bg-base-100 shadow px-6">
-        <h1 className="text-xl font-bold flex-1">
-          Provider Dashboard
-        </h1>
+        <h1 className="text-xl font-bold flex-1">{t('provider.dashboard')}</h1>
+
+        <LanguageToggle className="mr-2" />
 
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn btn-circle avatar">
@@ -163,7 +148,7 @@ function ProviderProfile() {
             <li>{loggedInUser}</li>
             <li>{formattedRole}</li>
             <li>
-              <button onClick={handleLogout}>Logout</button>
+              <button onClick={handleLogout}>{t('common.logout')}</button>
             </li>
           </ul>
         </div>
@@ -198,43 +183,39 @@ function ProviderProfile() {
         {activeView === "profile" && (
           <div className="card bg-base-100 shadow p-6">
             <div className="flex items-center gap-3 mb-3">
-              <h2 className="text-2xl font-bold">
-                {loggedInUser}
-              </h2>
+              <h2 className="text-2xl font-bold">{loggedInUser}</h2>
 
               {hasVerifiedCertification && (
                 <span className="badge badge-info text-white">
-                  <BadgeCheck size={16} /> Verified
+                  <BadgeCheck size={16} /> {t('provider.verified')}
                 </span>
               )}
             </div>
 
-            <p className="mb-1">Role: {formattedRole}</p>
-            <p className="mb-4">Email: {email}</p>
+            <p className="mb-1">{t('provider.roleLabel')}: {formattedRole}</p>
+            <p className="mb-4">{t('provider.emailLabel')}: {email}</p>
 
             <form onSubmit={handleUploadCertification}>
               <input
                 type="file"
                 className="file-input file-input-bordered w-full mb-3"
-                onChange={(e) =>
-                  setSelectedFile(e.target.files[0])
-                }
+                onChange={(e) => setSelectedFile(e.target.files[0])}
               />
 
               <button className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none">
-                {isUploading ? "Uploading..." : "Upload"}
+                {isUploading ? t('provider.uploading') : t('provider.upload')}
               </button>
             </form>
 
             {certification?.fileUrl && (
               <div className="mt-5 p-4 rounded-lg border border-base-300 bg-base-200/40">
                 <p className="text-sm">
-                  Current file:{" "}
+                  {t('provider.currentFile')}:{" "}
                   <span className="font-semibold">{certification.fileName}</span>
                 </p>
 
                 <p className="text-sm mt-1">
-                  Uploaded on:{" "}
+                  {t('provider.uploadedOn')}:{" "}
                   {certification.uploadedAt
                     ? new Date(certification.uploadedAt).toLocaleString()
                     : "N/A"}
@@ -246,7 +227,7 @@ function ProviderProfile() {
                   rel="noreferrer"
                   className="link link-info mt-2 inline-block"
                 >
-                  View uploaded certification
+                  {t('provider.viewCertification')}
                 </a>
               </div>
             )}
@@ -257,26 +238,22 @@ function ProviderProfile() {
         {activeView === "offers" && (
           <div className="space-y-4">
             {loadingOffers ? (
-              <p>Loading...</p>
+              <p>{t('common.loading')}</p>
             ) : offers.length === 0 ? (
-              <p>No offers yet</p>
+              <p>{t('provider.noOffers')}</p>
             ) : (
               offers.map((o) => (
-                <div
-                  key={o._id}
-                  className="card bg-base-100 shadow p-4"
-                >
-                  <p><b>Customer:</b> {o.customerId?.name}</p>
-                  <p><b>Date:</b> {o.date.split('T')[0]}</p>
-                  <p><b>Time:</b> {o.timeSlot}</p>
-                  <p><b>Address:</b> {o.address}</p>
-                  <p><b>Category:</b> {o.category}</p>
-                  <p><b>Tier:</b> {o.tier}</p>
-                  <p><b>Distance:</b> {(Number(o.distance)/1000).toFixed(2)} km</p>
-                  
+                <div key={o._id} className="card bg-base-100 shadow p-4">
+                  <p><b>{t('provider.customer')}:</b> {o.customerId?.name}</p>
+                  <p><b>{t('provider.date')}:</b> {o.date.split('T')[0]}</p>
+                  <p><b>{t('provider.time')}:</b> {o.timeSlot}</p>
+                  <p><b>{t('provider.address')}:</b> {o.address}</p>
+                  <p><b>{t('provider.category')}:</b> {o.category}</p>
+                  <p><b>{t('provider.tier')}:</b> {o.tier}</p>
+                  <p><b>{t('provider.distance')}:</b> {(Number(o.distance)/1000).toFixed(2)} km</p>
                   {/* Show provider earnings (after commission) */}
-                  <p><b>Wages:</b> {(o.providerEarnings || (o.totalPrice * 0.85).toFixed(2))} BDT</p>
-                  <p><b>Status:</b> {o.status}</p>
+                  <p><b>{t('provider.wages')}:</b> {(o.providerEarnings || (o.totalPrice * 0.85).toFixed(2))} BDT</p>
+                  <p><b>{t('provider.status')}:</b> {o.status}</p>
 
                   {o.status === "Pending" && (
                     <div className="flex gap-2 mt-2">
@@ -284,16 +261,25 @@ function ProviderProfile() {
                         className="btn btn-success btn-sm"
                         onClick={() => handleAccept(o._id)}
                       >
-                        Accept
+                        {t('provider.accept')}
                       </button>
 
                       <button
                         className="btn btn-error btn-sm"
                         onClick={() => handleReject(o._id)}
                       >
-                        Reject
+                        {t('provider.reject')}
                       </button>
                     </div>
+                  )}
+
+                  {o.status !== "Rejected" && (
+                    <button
+                      className="btn btn-sm btn-outline btn-primary mt-2"
+                      onClick={() => setChatOffer(o)}
+                    >
+                      {t('provider.chatWithCustomer')}
+                    </button>
                   )}
                 </div>
               ))

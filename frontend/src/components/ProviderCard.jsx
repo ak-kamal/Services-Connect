@@ -1,11 +1,14 @@
-// frontend/src/components/ProviderCard.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sprout, TrendingUp, ShieldCheck, Zap } from 'lucide-react'; // Add this import
+import { useLanguage } from '../i18n/LanguageContext';
 
 function ProviderCard({ provider, category, tier, distance, totalPrice, recommendationScore }) {
   console.log({ category, tier, distance, totalPrice });
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  // Check if the user is logged in by checking for a token in localStorage
   const isLoggedIn = localStorage.getItem('token') !== null;
 
   // badge mapping function
@@ -87,7 +90,7 @@ return (
             className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none px-6"
             onClick={handleCheckAvailability}
           >
-            Check Availability
+            {isAvailable ? t('provider.checkAvailability') : t('provider.noSlots')}
           </button>
         </div>
       </div>
