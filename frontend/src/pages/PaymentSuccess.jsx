@@ -16,13 +16,6 @@ function PaymentSuccess() {
           Your payment has been completed successfully.
         </p>
 
-<<<<<<< HEAD
-        <p className="text-sm text-gray-500 mb-6">
-          Offer ID: {offerId}
-        </p>
-
-=======
->>>>>>> origin/feature/payment
         <button
           className="btn btn-primary"
           onClick={() => navigate('/')}

@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import Offer from '../models/Offer.js';
 import UserModel from '../models/User.js';
 import sendWorkDoneEmail from '../utils/nodemailer.js';
+import calculateTrustScore from './TrustController.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -77,11 +78,7 @@ export const stripeWebhook = async (req, res) => {
 // Increment completed jobs
 provider.completedJobs = (provider.completedJobs || 0) + 1;
 
-// Recalculate average rating
-const allRatedOffers = await Offer.find({
-  providerId: offer.providerId,
-  rating: { $exists: true }
-});
+await calculateTrustScore(provider);
 
 const totalRating = allRatedOffers.reduce((sum, o) => sum + o.rating, 0);
 provider.rating = totalRating / allRatedOffers.length;

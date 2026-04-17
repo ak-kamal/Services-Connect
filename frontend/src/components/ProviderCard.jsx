@@ -1,22 +1,42 @@
 // frontend/src/components/ProviderCard.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Sprout, TrendingUp, ShieldCheck, Zap } from 'lucide-react'; // Add this import
 
 function ProviderCard({ provider, category, tier, distance, totalPrice }) {
   console.log({ category, tier, distance, totalPrice });
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem('token') !== null;
 
+  // badge mapping function
+  const getBadgeIcon = (badge) => {
+    switch (badge) {
+      case 'expert':
+        return { icon: Zap, color: 'text-yellow-500', label: 'Expert' };
+      case 'trusted':
+        return { icon: ShieldCheck, color: 'text-blue-500', label: 'Trusted' };
+      case 'rising star':
+        return { icon: TrendingUp, color: 'text-green-500', label: 'Rising Star' };
+      case 'newbie':
+        return { icon: Sprout, color: 'text-emerald-500', label: 'Newbie' };
+      default:
+        return { icon: Sprout, color: 'text-emerald-500', label: 'Newbie' };
+    }
+  };
+
+  const badgeInfo = getBadgeIcon(provider.badge);
+  const BadgeIcon = badgeInfo.icon;
+
   const handleCheckAvailability = () => {
     if (isLoggedIn) {
       navigate(`/provider-booking/${provider._id}`, {
-  state: {
-    category,
-    tier,
-    distance,
-    totalPrice
-  }
-});
+        state: {
+          category,
+          tier,
+          distance,
+          totalPrice
+        }
+      });
     } else {
       navigate('/login');
     }
@@ -27,7 +47,7 @@ function ProviderCard({ provider, category, tier, distance, totalPrice }) {
   console.log('Total price type:', typeof provider.totalPrice, provider.totalPrice);
   console.log('Availability:', provider.isAvailable);
 
-return (
+  return (
     <div className="card bg-base-100 shadow-lg">
       <div className="card-body">
         <div className="flex items-center">
@@ -37,7 +57,16 @@ return (
             </div>
           </div>
           <div className="ml-4">
-            <h3 className="card-title">{provider.name}</h3>
+            {/* Updated name section with badge */}
+            <div className="flex items-center gap-2">
+  <h3 className="card-title">{provider.name}</h3>
+  <div className="relative group">
+    <BadgeIcon size={18} className={badgeInfo.color} />
+    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+      {badgeInfo.label}
+    </span>
+  </div>
+</div>
             <p className="text-sm text-base-content/60">Role: {provider.role}</p>
             <p className="text-sm text-base-content/60">Rating: {provider.rating}/5</p>
             <p className="mt-2">Completed Jobs: {provider.completedJobs}</p>

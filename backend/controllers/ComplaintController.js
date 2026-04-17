@@ -1,9 +1,10 @@
 // /controllers/ComplaintController.js
 import Complaint from '../models/Complaint.js';
 import path from 'path';
+import UserModel from '../models/User.js';
 
 // Create a complaint with or without a file
-export const createComplaint = (req, res) => {
+export const createComplaint = async (req, res) => {
   const { customerId, providerName, providerRole, providerId, complaintDescription } = req.body;
   const file = req.file;  // Get the uploaded file (optional)
 
@@ -18,6 +19,12 @@ export const createComplaint = (req, res) => {
     };
   }
 
+  const provider = await UserModel.findById(providerId);
+  if (!provider) {
+    return res.status(404).json({ error: 'Provider not found' });
+  }
+  provider.complaints += 1;
+  await provider.save();
   // Save the complaint data in MongoDB
   const newComplaint = new Complaint({
     customerId,  // Link the complaint to the logged-in customer
