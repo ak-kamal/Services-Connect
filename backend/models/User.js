@@ -72,7 +72,6 @@ const userSchema = new Schema({
     type: Number,
     default: 0,
   },
-
   rating: {
     type: Number,
     default: 0,
@@ -80,7 +79,16 @@ const userSchema = new Schema({
   totalEarnings: {
     type: Number,
     default: 0,
-  }
+  },
+  complaints: {
+    type: Number,
+    default: 0,
+  },
+  badge: {
+    type: String,
+    enum: ["newbie", "rising star", "trusted", "expert"],
+    default: "newbie",
+  },
 });
 
 const UserModel = mongoose.model("User", userSchema);
