@@ -88,7 +88,6 @@ function Home() {
     fetchProviders(role);
   };
 
-  // 🔥 NEW FUNCTION
   const fetchMyOffers = async () => {
     const customerId = localStorage.getItem("userId");
 
@@ -110,6 +109,10 @@ function Home() {
     }
   };
 
+  const pastOffers = myOffers.filter(
+    (o) => o.status === 'Accepted' && new Date(o.date) < new Date()
+  );
+
   return (
     <div className="min-h-screen bg-base-200">
 
@@ -123,20 +126,28 @@ function Home() {
 
         <div className="flex-none">
 
-          {/* 🔥 NEW BUTTON */}
           {loggedInUser && role === 'customer' && (
+            <>
+              <button
+                className="btn btn-sm btn-secondary mr-2"
+                onClick={() => {
+                  setActiveView('past');
+                  fetchMyOffers();
+                }}
+              >
+                Past Services
+              </button>
 
-            <button
-              className="btn btn-sm btn-primary mr-3"
-              onClick={() => {
-                setActiveView('requests');
-                fetchMyOffers();
-              }}
-            >
-              My Requests
-            </button>
-
-
+              <button
+                className="btn btn-sm btn-primary mr-3"
+                onClick={() => {
+                  setActiveView('requests');
+                  fetchMyOffers();
+                }}
+              >
+                My Requests
+              </button>
+            </>
           )}
 
           {!loggedInUser ? (
@@ -251,6 +262,45 @@ function Home() {
                     </button>
                   )}
 
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            className="btn btn-primary mt-6"
+            onClick={() => setActiveView('home')}
+          >
+            Back
+          </button>
+        </div>
+      )}
+
+      {/* PAST SERVICES VIEW */}
+      {activeView === 'past' && (
+        <div className="max-w-4xl mx-auto px-4 py-10">
+          <h2 className="text-3xl font-bold mb-6">Past Services</h2>
+
+          {loadingOffers ? (
+            <p>Loading...</p>
+          ) : pastOffers.length === 0 ? (
+            <p>No past services found</p>
+          ) : (
+            <div className="space-y-4">
+              {pastOffers.map((offer) => (
+                <div key={offer._id} className="p-4 border rounded-lg shadow">
+                  <p><strong>Provider:</strong> {offer.providerId?.name}</p>
+                  <p><strong>Role:</strong> {offer.providerId?.role}</p>
+                  <p><strong>Date:</strong> {new Date(offer.date).toLocaleDateString()}</p>
+                  <p><strong>Time:</strong> {offer.timeSlot}</p>
+                  <p><strong>Status:</strong> {offer.status}</p>
+
+                  <button
+                    className="btn btn-sm btn-outline btn-success mt-3"
+                    onClick={() => navigate(`/provider-booking/${offer.providerId?._id}`)}
+                  >
+                    🔁 Book Again
+                  </button>
                 </div>
               ))}
             </div>
