@@ -1,8 +1,10 @@
 // frontend/src/components/ProviderCard.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function ProviderCard({ provider }) {
+  const { t } = useLanguage();
   const [isAvailable, setIsAvailable] = useState(true);
   const navigate = useNavigate();
 
@@ -40,7 +42,7 @@ function ProviderCard({ provider }) {
             className={`btn btn-sm ${isAvailable ? 'btn-outline btn-primary' : 'btn-disabled'}`}
             onClick={handleCheckAvailability}
           >
-            {isAvailable ? 'Check Availability' : 'No slots available'}
+            {isAvailable ? t('provider.checkAvailability') : t('booking.available')}
           </button>
         </div>
       </div>

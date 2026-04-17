@@ -5,6 +5,8 @@ import { ToastContainer } from 'react-toastify'
 import { handleError, handleSuccess } from "../utils";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
+import LanguageToggle from "../components/LanguageToggle";
+import { useLanguage } from "../i18n/LanguageContext";
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -15,6 +17,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const Signup = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: "",
     dateOfBirth: "",
@@ -93,9 +96,9 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     if (!formData.location.lat) {
-    return handleError("Please select your address from the map");
+    return handleError(t('signup.pickLocation'));
   }
-  
+
     e.preventDefault();
 
     // Send final data to the backend for signup
@@ -111,35 +114,37 @@ const Signup = () => {
     const { success, message } = result;
 
     if (success) {
-      //alert(message);
-      handleSuccess(message);
+      handleSuccess(message || t('signup.success'));
       setTimeout(() => {
-          navigate("/login");  // Redirect to login page after successful signup
+          navigate("/login");
         }, 1000)
     } else {
-      handleError("Signup failed. Please try again.");  // Show error message
+      handleError(message || t('login.loginFailed'));
     }
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10">
-      <h2 className="text-xl mb-4">Signup</h2>
+    <div className="max-w-lg mx-auto mt-10 relative">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl">{t('signup.title')}</h2>
+        <LanguageToggle />
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4 mt-4">
         <div className="form-control">
-          <label className="label">Full Name</label>
+          <label className="label">{t('common.name')}</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Enter your name"
+            placeholder={t('signup.namePlaceholder')}
             className="input input-bordered w-full"
             required
           />
         </div>
 
         <div className="form-control">
-          <label className="label">Date of Birth</label>
+          <label className="label">{t('signup.dobPlaceholder')}</label>
           <input
             type="date"
             name="dateOfBirth"
@@ -151,10 +156,10 @@ const Signup = () => {
         </div>
 
         <div className="form-control">
-  <label className="label">Select Address from Map</label>
+  <label className="label">{t('signup.pickLocation')}</label>
 
   <MapContainer
-    center={[23.8103, 90.4125]} // Dhaka default
+    center={[23.8103, 90.4125]}
     zoom={13}
     style={{ height: "300px", width: "100%" }}
   >
@@ -165,60 +170,59 @@ const Signup = () => {
     <LocationMarker />
   </MapContainer>
 
-  {/* Show selected address */}
   {location.address && (
     <div className="mt-2 p-2 bg-gray-100 rounded">
       <p className="text-sm">
-        <strong>Selected Address:</strong> {location.address}
+        <strong>{t('signup.addressLabel')}:</strong> {location.address}
       </p>
     </div>
   )}
 </div>
 
         <div className="form-control">
-          <label className="label">Email</label>
+          <label className="label">{t('common.email')}</label>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="Enter your email"
+            placeholder={t('signup.emailPlaceholder')}
             className="input input-bordered w-full"
             required
           />
         </div>
 
         <div className="form-control">
-          <label className="label">Password</label>
+          <label className="label">{t('common.password')}</label>
           <input
             type="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
-            placeholder="Enter your password"
+            placeholder={t('signup.passwordPlaceholder')}
             className="input input-bordered w-full"
             required
           />
         </div>
 
         <div className="form-control">
-          <label className="label">Role</label>
+          <label className="label">{t('common.role')}</label>
           <select
             name="role"
             value={formData.role}
             onChange={handleChange}
             className="select select-bordered w-full"
           >
-            <option value="customer">Customer</option>
-            <option value="electrician">Electrician</option>
-            <option value="plumber">Plumber</option>
-            <option value="carpenter">Carpenter</option>
-            <option value="driver">House maid</option>
+            <option value="customer">{t('common.customer')}</option>
+            <option value="electrician">{t('home.categoryElectricians')}</option>
+            <option value="plumber">{t('home.categoryPlumbers')}</option>
+            <option value="carpenter">{t('home.categoryCarpenters')}</option>
+            <option value="driver">{t('home.categoryHouseMaids')}</option>
           </select>
         </div>
 
         <button type="submit" className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none">
-          Sign Up
+          {t('common.signup')}
         </button>
       </form>
       <ToastContainer />

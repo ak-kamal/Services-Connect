@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { X, Send } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -17,6 +18,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
  *  - onClose        {fn}      Called when the user closes the chat
  */
 function ChatWindow({ offerId, offerDate, offerTimeSlot, otherPartyName, currentUserId, token, onClose }) {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(true);
@@ -115,7 +117,7 @@ function ChatWindow({ offerId, offerDate, offerTimeSlot, otherPartyName, current
           </div>
         ) : messages.length === 0 ? (
           <p className="text-center text-sm text-base-content/40 mt-10">
-            No messages yet. Start the conversation!
+            {t('chat.empty')}
           </p>
         ) : (
           messages.map((msg) => {
@@ -152,7 +154,7 @@ function ChatWindow({ offerId, offerDate, offerTimeSlot, otherPartyName, current
         <input
           type="text"
           className="input input-bordered input-sm flex-1 text-sm"
-          placeholder="Type a message..."
+          placeholder={t('chat.placeholder')}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}

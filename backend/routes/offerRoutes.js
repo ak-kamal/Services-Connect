@@ -1,5 +1,6 @@
 // backend/routes/offerRoutes.js
 import express from 'express';
+import moment from 'moment';
 import UserModel from '../models/User.js';
 import Offer from '../models/Offer.js';
 import Slot from '../models/Slot.js';
@@ -194,5 +195,90 @@ offerRouter.get('/provider-slot-offers', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to fetch slot offers' });
   }
 });
+
+
+// -------------------- RECURRING BOOKING --------------------
+// Bulk-creates multiple offers following a weekly / biweekly / monthly pattern.
+// Skips dates where no slot exists yet, the slot is already booked, or an offer
+// already exists for that date/time. Returns a per-occurrence report.
+offerRouter.post('/recurring-booking', async (req, res) => {
+  const {
+    providerId,
+    customerId,
+    timeSlot,
+    startDate,
+    frequency,    // 'weekly' | 'biweekly' | 'monthly'
+    occurrences,  // how many bookings to create (1..12)
+    address,
+  } = req.body;
+
+  try {
+    if (!providerId || !customerId || !timeSlot || !startDate || !frequency || !occurrences) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    const stepDays = frequency === 'weekly' ? 7 : frequency === 'biweekly' ? 14 : 30;
+    const count = Math.min(Math.max(parseInt(occurrences, 10), 1), 12);
+
+    const created = [];
+    const skipped = [];
+
+    for (let i = 0; i < count; i++) {
+      const targetDate = moment(startDate).startOf('day').add(i * stepDays, 'days').toDate();
+      const nextDay = moment(targetDate).add(1, 'day').toDate();
+      const dateLabel = moment(targetDate).format('YYYY-MM-DD');
+
+      const slot = await Slot.findOne({
+        providerId,
+        time: timeSlot,
+        date: { $gte: targetDate, $lt: nextDay },
+      });
+
+      if (!slot) {
+        skipped.push({ date: dateLabel, reason: 'no slot available' });
+        continue;
+      }
+
+      if (slot.booked) {
+        skipped.push({ date: dateLabel, reason: 'slot already booked' });
+        continue;
+      }
+
+      const existing = await Offer.findOne({
+        providerId,
+        timeSlot,
+        date: { $gte: targetDate, $lt: nextDay },
+        status: { $in: ['Pending', 'Accepted'] },
+      });
+
+      if (existing) {
+        skipped.push({ date: dateLabel, reason: 'offer already exists' });
+        continue;
+      }
+
+      const offer = await Offer.create({
+        providerId,
+        customerId,
+        timeSlot,
+        date: targetDate,
+        address,
+        status: 'Pending',
+      });
+
+      created.push({ date: dateLabel, offerId: offer._id });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Created ${created.length} booking(s), skipped ${skipped.length}`,
+      created,
+      skipped,
+    });
+  } catch (error) {
+    console.error('recurring-booking error:', error);
+    res.status(500).json({ success: false, message: 'Failed to create recurring booking' });
+  }
+});
+
 
 export default offerRouter;

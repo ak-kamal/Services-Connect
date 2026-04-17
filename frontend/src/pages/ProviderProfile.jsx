@@ -5,8 +5,11 @@ import { BadgeCheck } from "lucide-react";
 import { handleError, handleSuccess } from "../utils";
 import { useOffers } from "../hooks/useOffers";
 import ChatWindow from "../components/ChatWindow";
+import LanguageToggle from "../components/LanguageToggle";
+import { useLanguage } from "../i18n/LanguageContext";
 
 function ProviderProfile() {
+  const { t } = useLanguage();
   const [loggedInUser, setLoggedInUser] = useState("");
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
@@ -82,7 +85,7 @@ function ProviderProfile() {
     e.preventDefault();
 
     const token = localStorage.getItem("token");
-    if (!selectedFile) return handleError("Select file first");
+    if (!selectedFile) return handleError(t('nid.chooseFile'));
 
     const formData = new FormData();
     formData.append("certification", selectedFile);
@@ -105,7 +108,7 @@ function ProviderProfile() {
         throw new Error(data.message);
 
       setCertification(data.certification);
-      handleSuccess("Uploaded!");
+      handleSuccess(t('provider.uploaded'));
     } catch (err) {
       handleError(err.message);
     } finally {
@@ -120,7 +123,7 @@ function ProviderProfile() {
 
   const handleLogout = () => {
     localStorage.clear();
-    handleSuccess("Logged out");
+    handleSuccess(t('home.loggedOut'));
     navigate("/login");
   };
 
@@ -143,8 +146,10 @@ function ProviderProfile() {
       {/* NAVBAR */}
       <div className="navbar bg-base-100 shadow px-6">
         <h1 className="text-xl font-bold flex-1">
-          Provider Dashboard
+          {t('provider.dashboard')}
         </h1>
+
+        <LanguageToggle className="mr-3" />
 
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn btn-circle avatar">
@@ -157,7 +162,7 @@ function ProviderProfile() {
             <li>{loggedInUser}</li>
             <li>{formattedRole}</li>
             <li>
-              <button onClick={handleLogout}>Logout</button>
+              <button onClick={handleLogout}>{t('common.logout')}</button>
             </li>
           </ul>
         </div>
@@ -170,14 +175,14 @@ function ProviderProfile() {
     className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "profile" && "tab-active"}`}
     onClick={() => setActiveView("profile")}
   >
-    Profile
+    {t('provider.tabProfile')}
   </button>
 
   <button
     className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "offers" && "tab-active"}`}
     onClick={() => setActiveView("offers")}
   >
-    Offers
+    {t('provider.tabOffers')}
   </button>
 </div>
 
@@ -191,13 +196,13 @@ function ProviderProfile() {
 
               {hasVerifiedCertification && (
                 <span className="badge badge-info text-white">
-                  <BadgeCheck size={16} /> Verified
+                  <BadgeCheck size={16} /> {t('provider.verified')}
                 </span>
               )}
             </div>
 
-            <p className="mb-1">Role: {formattedRole}</p>
-            <p className="mb-4">Email: {email}</p>
+            <p className="mb-1">{t('common.role')}: {formattedRole}</p>
+            <p className="mb-4">{t('common.email')}: {email}</p>
 
             <form onSubmit={handleUploadCertification}>
               <input
@@ -209,19 +214,19 @@ function ProviderProfile() {
               />
 
               <button className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none">
-                {isUploading ? "Uploading..." : "Upload"}
+                {isUploading ? t('provider.uploading') : t('provider.uploadCertification')}
               </button>
             </form>
 
             {certification?.fileUrl && (
   <div className="mt-5 p-4 rounded-lg border border-base-300 bg-base-200/40">
     <p className="text-sm">
-      Current file:{" "}
+      {t('provider.currentFile')}:{" "}
       <span className="font-semibold">{certification.fileName}</span>
     </p>
 
     <p className="text-sm mt-1">
-      Uploaded on:{" "}
+      {t('provider.uploadedOn')}:{" "}
       {certification.uploadedAt
         ? new Date(certification.uploadedAt).toLocaleString()
         : "N/A"}
@@ -233,7 +238,7 @@ function ProviderProfile() {
       rel="noreferrer"
       className="link link-info mt-2 inline-block"
     >
-      View uploaded certification
+      {t('provider.viewCertification')}
     </a>
   </div>
 )}
@@ -244,20 +249,20 @@ function ProviderProfile() {
         {activeView === "offers" && (
           <div className="space-y-4">
             {loadingOffers ? (
-              <p>Loading...</p>
+              <p>{t('common.loading')}</p>
             ) : offers.length === 0 ? (
-              <p>No offers yet</p>
+              <p>{t('provider.noOffers')}</p>
             ) : (
               offers.map((o) => (
                 <div
                   key={o._id}
                   className="card bg-base-100 shadow p-4"
                 >
-                  <p><b>Customer:</b> {o.customerId?.name}</p>
-                  <p><b>Date:</b> {o.date.split('T')[0]}</p>
-                  <p><b>Time:</b> {o.timeSlot}</p>
-                  <p><b>Address:</b> {o.address}</p>
-                  <p><b>Status:</b> {o.status}</p>
+                  <p><b>{t('common.customer')}:</b> {o.customerId?.name}</p>
+                  <p><b>{t('common.date')}:</b> {o.date.split('T')[0]}</p>
+                  <p><b>{t('common.time')}:</b> {o.timeSlot}</p>
+                  <p><b>{t('common.address')}:</b> {o.address}</p>
+                  <p><b>{t('common.status')}:</b> {o.status}</p>
 
                   {o.status === "Pending" && (
                     <div className="flex gap-2 mt-2">
@@ -265,14 +270,14 @@ function ProviderProfile() {
                         className="btn btn-success btn-sm"
                         onClick={() => handleAccept(o._id)}
                       >
-                        Accept
+                        {t('provider.accept')}
                       </button>
 
                       <button
                         className="btn btn-error btn-sm"
                         onClick={() => handleReject(o._id)}
                       >
-                        Reject
+                        {t('provider.reject')}
                       </button>
                     </div>
                   )}
@@ -282,7 +287,7 @@ function ProviderProfile() {
                       className="btn btn-sm btn-outline btn-primary mt-2"
                       onClick={() => setChatOffer(o)}
                     >
-                      💬 Chat with Customer
+                      {t('provider.chatWithCustomer')}
                     </button>
                   )}
                 </div>

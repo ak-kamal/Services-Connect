@@ -5,8 +5,11 @@ import { handleSuccess, handleError } from '../utils';
 
 import ProviderCard from '../components/ProviderCard';
 import ChatWindow from '../components/ChatWindow';
+import LanguageToggle from '../components/LanguageToggle';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function Home() {
+  const { t } = useLanguage();
   const [loggedInUser, setLoggedInUser] = useState('');
   const [role, setRole] = useState('');
   const [providers, setProviders] = useState([]);
@@ -39,7 +42,7 @@ function Home() {
     localStorage.removeItem('token');
     localStorage.removeItem('loggedInUser');
     localStorage.removeItem('role');
-    handleSuccess('User logged out');
+    handleSuccess(t('home.loggedOut'));
 
     setTimeout(() => {
       navigate('/');
@@ -48,10 +51,10 @@ function Home() {
   };
 
   const categories = [
-    { title: 'Electricians', description: 'Electrical repairs...', role: 'electrician' },
-    { title: 'Plumbers', description: 'Pipe leaks...', role: 'plumber' },
-    { title: 'Carpenters', description: 'Furniture work...', role: 'carpenter' },
-    { title: 'House Maids', description: 'Cleaning...', role: 'house maid' },
+    { title: t('home.categoryElectricians'), role: 'electrician' },
+    { title: t('home.categoryPlumbers'), role: 'plumber' },
+    { title: t('home.categoryCarpenters'), role: 'carpenter' },
+    { title: t('home.categoryHouseMaids'), role: 'house maid' },
   ];
 
   const fetchProviders = async (role) => {
@@ -63,7 +66,7 @@ function Home() {
       const user = JSON.parse(localStorage.getItem("userData")); // store this after login!
 
       if (!user?.location?.lat) {
-        return handleError("Location not found. Please re-login.");
+        return handleError(t('home.noLocation'));
       }
 
       const { lat, lng } = user.location;
@@ -77,10 +80,10 @@ function Home() {
     if (data.success) {
       setProviders(data.providers);
     } else {
-      handleError("Failed to fetch providers");
+      handleError(t('home.fetchFailed'));
     }
   } catch (error) {
-    handleError("Error fetching providers");
+    handleError(t('home.fetchError'));
   }
 };
 
@@ -117,31 +120,40 @@ function Home() {
       <div className="navbar bg-base-100 shadow-md px-6">
         <div className="flex-1">
           <Link to="/" className="text-2xl font-bold text-primary">
-            Services Connect
+            {t('nav.brand')}
           </Link>
         </div>
 
-        <div className="flex-none">
+        <div className="flex-none flex items-center gap-2">
+          <LanguageToggle />
 
-          {/* 🔥 NEW BUTTON */}
           {loggedInUser && role === 'customer' && (
+            <>
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={() => {
+                  setActiveView('requests');
+                  fetchMyOffers();
+                }}
+              >
+                {t('nav.myRequests')}
+              </button>
 
-            <button
-              className="btn btn-sm btn-primary mr-3"
-              onClick={() => {
-                setActiveView('requests');
-                fetchMyOffers();
-              }}
-            >
-              My Requests
-            </button>
-
-
+              <button
+                className="btn btn-sm btn-secondary"
+                onClick={() => {
+                  setActiveView('past');
+                  fetchMyOffers();
+                }}
+              >
+                {t('nav.pastServices')}
+              </button>
+            </>
           )}
 
           {!loggedInUser ? (
             <Link to="/login" className="btn btn-primary">
-              Login / Signup
+              {t('common.loginSignup')}
             </Link>
           ) : (
             <div className="dropdown dropdown-end">
@@ -154,7 +166,7 @@ function Home() {
               <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
                 <li className="px-2 py-1 font-semibold">{loggedInUser}</li>
                 <li className="px-2 py-1 text-sm capitalize">{role}</li>
-                <li><button onClick={handleLogout}>Logout</button></li>
+                <li><button onClick={handleLogout}>{t('common.logout')}</button></li>
               </ul>
             </div>
           )}
@@ -167,15 +179,15 @@ function Home() {
           <section className="hero bg-base-200 py-16">
             <div className="hero-content text-center">
               <div className="max-w-3xl">
-                <h1 className="text-5xl font-bold">Book trusted home service providers</h1>
-                <p className="py-6">Find electricians, plumbers, carpenters and more.</p>
+                <h1 className="text-5xl font-bold">{t('home.heroTitle')}</h1>
+                <p className="py-6">{t('home.heroSubtitle')}</p>
               </div>
             </div>
           </section>
 
           <div className="max-w-6xl mx-auto px-4 mb-6 flex items-center gap-3">
   <label className="label cursor-pointer gap-2">
-    <span className="label-text font-semibold">Nearby Only</span>
+    <span className="label-text font-semibold">{t('home.nearbyOnly')}</span>
     <input
       type="checkbox"
       className="toggle checked:bg-blue-500 checked:border-blue-500"
@@ -186,7 +198,7 @@ function Home() {
 </div>
 
           <section className="max-w-6xl mx-auto px-4 pb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Explore Services</h2>
+            <h2 className="text-3xl font-bold text-center mb-8">{t('home.exploreServices')}</h2>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {categories.map((item, index) => (
@@ -194,7 +206,7 @@ function Home() {
                   <div className="card-body">
                     <h3 className="card-title">{item.title}</h3>
                     <button className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none" onClick={() => handleFindProviders(item.role)}>
-                      Find
+                      {t('home.find')}
                     </button>
                   </div>
                 </div>
@@ -204,7 +216,7 @@ function Home() {
 
           {providers.length > 0 && (
             <section className="max-w-6xl mx-auto px-4 pb-16">
-              <h2 className="text-3xl font-bold text-center mb-8">Providers</h2>
+              <h2 className="text-3xl font-bold text-center mb-8">{t('home.providers')}</h2>
 
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {providers.map((provider, index) => (
@@ -219,27 +231,27 @@ function Home() {
       {/* 🔥 REQUESTS VIEW */}
       {activeView === 'requests' && (
         <div className="max-w-4xl mx-auto px-4 py-10">
-          <h2 className="text-3xl font-bold mb-6">My Requests</h2>
+          <h2 className="text-3xl font-bold mb-6">{t('requests.title')}</h2>
 
           {loadingOffers ? (
-            <p>Loading...</p>
+            <p>{t('common.loading')}</p>
           ) : myOffers.length === 0 ? (
-            <p>No booking requests yet</p>
+            <p>{t('requests.noRequests')}</p>
           ) : (
             <div className="space-y-4">
               {myOffers.map((offer) => (
                 <div key={offer._id} className="p-4 border rounded-lg shadow">
 
-                  <p><strong>Provider:</strong> {offer.providerId?.name}</p>
-                  <p><strong>Role:</strong> {offer.providerId?.role}</p>
-                  <p><strong>Date:</strong> {new Date(offer.date).toLocaleDateString()}</p>
-                  <p><strong>Time:</strong> {offer.timeSlot}</p>
-                  <p><strong>Status:</strong> {offer.status}</p>
+                  <p><strong>{t('common.provider')}:</strong> {offer.providerId?.name}</p>
+                  <p><strong>{t('common.role')}:</strong> {offer.providerId?.role}</p>
+                  <p><strong>{t('common.date')}:</strong> {new Date(offer.date).toLocaleDateString()}</p>
+                  <p><strong>{t('common.time')}:</strong> {offer.timeSlot}</p>
+                  <p><strong>{t('common.status')}:</strong> {offer.status}</p>
 
                   <p className="mt-2 font-semibold">
-                    {offer.status === 'Pending' && '⏳ Waiting for provider...'}
-                    {offer.status === 'Accepted' && `✅ ${offer.providerId?.name} accepted your request`}
-                    {offer.status === 'Rejected' && '❌ Request rejected'}
+                    {offer.status === 'Pending' && t('requests.waiting')}
+                    {offer.status === 'Accepted' && t('requests.acceptedBy', { name: offer.providerId?.name })}
+                    {offer.status === 'Rejected' && t('requests.rejected')}
                   </p>
 
                   {offer.status !== 'Rejected' && (
@@ -247,7 +259,7 @@ function Home() {
                       className="btn btn-sm btn-outline btn-primary mt-3"
                       onClick={() => setChatOffer(offer)}
                     >
-                      💬 Chat with Provider
+                      {t('requests.chatWithProvider')}
                     </button>
                   )}
 
@@ -260,10 +272,71 @@ function Home() {
             className="btn btn-primary mt-6"
             onClick={() => setActiveView('home')}
           >
-            Back
+            {t('common.back')}
           </button>
         </div>
       )}
+
+      {/* 🔥 PAST SERVICES VIEW */}
+      {activeView === 'past' && (() => {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        const pastServices = myOffers.filter(
+          (o) => o.status === 'Accepted' && new Date(o.date) < now
+        );
+
+        return (
+          <div className="max-w-4xl mx-auto px-4 py-10">
+            <h2 className="text-3xl font-bold mb-2">{t('past.title')}</h2>
+            <p className="text-sm text-base-content/60 mb-6">
+              {t('past.subtitle')}
+            </p>
+
+            {loadingOffers ? (
+              <p>{t('common.loading')}</p>
+            ) : pastServices.length === 0 ? (
+              <p>{t('past.none')}</p>
+            ) : (
+              <div className="space-y-4">
+                {pastServices.map((offer) => (
+                  <div key={offer._id} className="p-4 border rounded-lg shadow bg-base-100">
+                    <div className="flex items-start justify-between gap-4 flex-wrap">
+                      <div>
+                        <p className="text-lg font-semibold">{offer.providerId?.name}</p>
+                        <p className="text-sm capitalize opacity-70">{offer.providerId?.role}</p>
+                        <p className="mt-2 text-sm">
+                          <strong>{t('common.date')}:</strong> {new Date(offer.date).toLocaleDateString()}
+                        </p>
+                        <p className="text-sm">
+                          <strong>{t('common.time')}:</strong> {offer.timeSlot}
+                        </p>
+                        <p className="text-sm">
+                          <strong>{t('common.address')}:</strong> {offer.address}
+                        </p>
+                      </div>
+
+                      <button
+                        className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none"
+                        onClick={() => navigate(`/provider-booking/${offer.providerId?._id}`)}
+                      >
+                        {t('past.bookAgain')}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button
+              className="btn btn-primary mt-6"
+              onClick={() => setActiveView('home')}
+            >
+              {t('common.back')}
+            </button>
+          </div>
+        );
+      })()}
 
       {chatOffer && (
         <ChatWindow
