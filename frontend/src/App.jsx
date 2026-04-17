@@ -12,6 +12,7 @@ import ChatWidget from "./components/ChatWidget";
 import PaymentSuccess from './pages/PaymentSuccess';
 import Complaint from './pages/Complaint';
 import AdminDashboard from "./pages/AdminDashboard";
+import ProviderStats from './pages/ProviderStats';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -40,6 +41,7 @@ function App() {
         <Route path="/provider-booking/:providerId" element={<PrivateRoute element={<ProviderBooking />} />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/complaint" element={<Complaint />} />      
+        <Route path="/provider/stats/:providerId" element={<ProviderStats />} />
       </Routes>
 
       <ChatWidget />

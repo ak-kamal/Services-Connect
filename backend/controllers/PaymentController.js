@@ -6,6 +6,7 @@ import sendWorkDoneEmail from '../utils/nodemailer.js';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // CREATE CHECKOUT SESSION
+// PaymentController.js - Updated createCheckoutSession
 export const createCheckoutSession = async (req, res) => {
   try {
     console.log(req.body);
@@ -25,7 +26,7 @@ export const createCheckoutSession = async (req, res) => {
             product_data: {
               name: `${offer.category} - ${offer.tier}`
             },
-            unit_amount: offer.totalPrice * 100, // paisa
+            unit_amount: Math.round(offer.totalPrice * 100), // Customer pays full price
           },
           quantity: 1,
         },
@@ -47,7 +48,7 @@ export const createCheckoutSession = async (req, res) => {
   }
 };
 
-// WEBHOOK
+// Updated WEBHOOK - Use providerEarnings instead of totalPrice
 export const stripeWebhook = async (req, res) => {
   const sig = req.headers['stripe-signature'];
 
@@ -60,9 +61,9 @@ export const stripeWebhook = async (req, res) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-  console.error("❌ Webhook Error:", err.message);
-  return res.status(400).send(`Webhook Error: ${err.message}`);
-}
+    console.error("❌ Webhook Error:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
@@ -74,24 +75,28 @@ export const stripeWebhook = async (req, res) => {
 
       const provider = await UserModel.findById(offer.providerId);
 
-// Increment completed jobs
-provider.completedJobs = (provider.completedJobs || 0) + 1;
+      // Increment completed jobs
+      provider.completedJobs = (provider.completedJobs || 0) + 1;
+      
+      // Use providerEarnings (after commission) instead of totalPrice
+      provider.totalEarnings = (provider.totalEarnings || 0) + offer.providerEarnings;
 
-// Recalculate average rating
-const allRatedOffers = await Offer.find({
-  providerId: offer.providerId,
-  rating: { $exists: true }
-});
+      // Recalculate average rating
+      const allRatedOffers = await Offer.find({
+        providerId: offer.providerId,
+        rating: { $exists: true, $gte: 1 }
+      });
 
-const totalRating = allRatedOffers.reduce((sum, o) => sum + o.rating, 0);
-provider.rating = totalRating / allRatedOffers.length;
+      if (allRatedOffers.length > 0) {
+        const totalRating = allRatedOffers.reduce((sum, o) => sum + o.rating, 0);
+        provider.rating = Number((totalRating / allRatedOffers.length).toFixed(2));
+        offer.currentRatingOfProvider = provider.rating;
+      }
 
-await provider.save();
-
+      await provider.save();
       await offer.save();
 
       const customer = await UserModel.findById(offer.customerId);
-
       await sendWorkDoneEmail(provider, customer, offer);
     }
   }

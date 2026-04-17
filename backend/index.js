@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
 import jwt from "jsonwebtoken";
+import mongoose from 'mongoose';
 
 import "./db.js";
 import "./cronJobs/slotCron.js";
@@ -24,6 +25,7 @@ import Complaint from "./models/Complaint.js";
 
 import chatRouter from "./routes/chatRoutes.js";
 import providerTrustRouter from "./routes/providerTrustRoutes.js";
+import providerStatsRoutes from './routes/ProviderStatsRoutes.js';
 
 dotenv.config();
 
@@ -55,9 +57,7 @@ app.use("/api", slotRouter);
 app.use("/api", messageRouter);
 app.use("/api", chatRouter);
 app.use("/api", ComplainRouter);
-
-
-
+app.use('/api', providerStatsRoutes);
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 
 // Auth middleware: verify JWT and attach user info to socket
