@@ -248,8 +248,8 @@ function ProviderProfile() {
                   <p><b>{t('provider.date')}:</b> {o.date.split('T')[0]}</p>
                   <p><b>{t('provider.time')}:</b> {o.timeSlot}</p>
                   <p><b>{t('provider.address')}:</b> {o.address}</p>
-                  <p><b>{t('provider.category')}:</b> {o.category}</p>
-                  <p><b>{t('provider.tier')}:</b> {o.tier}</p>
+                  <p><b>{t('provider.category')}:</b> {t(`categories.${o.category}`, o.category)}</p>
+                  <p><b>{t('provider.tier')}:</b> {t(`tiers.${o.tier}`, o.tier)}</p>
                   <p><b>{t('provider.distance')}:</b> {(Number(o.distance)/1000).toFixed(2)} km</p>
                   {/* Show provider earnings (after commission) */}
                   <p><b>{t('provider.wages')}:</b> {(o.providerEarnings || (o.totalPrice * 0.85).toFixed(2))} BDT</p>

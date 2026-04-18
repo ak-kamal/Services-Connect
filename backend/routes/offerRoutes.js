@@ -1,5 +1,6 @@
 // backend/routes/offerRoutes.js
 import express from 'express';
+import moment from 'moment';
 import UserModel from '../models/User.js';
 import Offer from '../models/Offer.js';
 import Slot from '../models/Slot.js';
@@ -280,6 +281,126 @@ offerRouter.put('/offer/:offerId/add-review', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false });
+  }
+});
+// -------------------- RECURRING BOOKING --------------------
+// Bulk-creates multiple offers following a weekly / biweekly / monthly pattern.
+// Skips dates where no slot exists yet, the slot is already booked, or an offer
+// already exists for that date/time. Returns a per-occurrence report.
+offerRouter.post('/recurring-booking', async (req, res) => {
+  const {
+    providerId,
+    customerId,
+    timeSlot,
+    startDate,
+    frequency,    // 'weekly' | 'biweekly' | 'monthly'
+    occurrences,  // how many bookings to create (1..12)
+    address,
+    category,
+    tier,
+    distance,
+    totalPrice
+  } = req.body;
+
+  try {
+    // Validate required fields
+    if (!providerId || !customerId || !timeSlot || !startDate || !frequency || !occurrences) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    // Validate pricing fields (same as single booking)
+    if (!totalPrice || !category || !tier) {
+      return res.status(400).json({ success: false, message: 'Missing pricing or service information' });
+    }
+
+    // Verify provider and customer exist
+    const provider = await UserModel.findById(providerId);
+    const customer = await UserModel.findById(customerId);
+
+    if (!provider || !customer) {
+      return res.status(404).json({ success: false, message: 'Provider or Customer not found' });
+    }
+
+    const stepDays = frequency === 'weekly' ? 7 : frequency === 'biweekly' ? 14 : 30;
+    const count = Math.min(Math.max(parseInt(occurrences, 10), 1), 12);
+
+    const created = [];
+    const skipped = [];
+
+    // Calculate commission and provider earnings (same as single booking)
+    const commission = Number((totalPrice * 0.15).toFixed(2));
+    const providerEarnings = Number((totalPrice * 0.85).toFixed(2));
+
+    for (let i = 0; i < count; i++) {
+      const targetDate = moment(startDate).startOf('day').add(i * stepDays, 'days').toDate();
+      const nextDay = moment(targetDate).add(1, 'day').toDate();
+      const dateLabel = moment(targetDate).format('YYYY-MM-DD');
+
+      // Check if slot exists
+      const slot = await Slot.findOne({
+        providerId,
+        time: timeSlot,
+        date: { $gte: targetDate, $lt: nextDay },
+      });
+
+      if (!slot) {
+        skipped.push({ date: dateLabel, reason: 'no slot available' });
+        continue;
+      }
+
+      // Check if slot is already booked
+      if (slot.booked) {
+        skipped.push({ date: dateLabel, reason: 'slot already booked' });
+        continue;
+      }
+
+      // Check if an offer already exists for this slot
+      const existing = await Offer.findOne({
+        providerId,
+        timeSlot,
+        date: { $gte: targetDate, $lt: nextDay },
+        status: { $in: ['Pending', 'Accepted'] },
+      });
+
+      if (existing) {
+        skipped.push({ date: dateLabel, reason: 'offer already exists' });
+        continue;
+      }
+
+      // Create the offer with ALL fields (matching single booking)
+      const offer = await Offer.create({
+        providerId,
+        customerId,
+        timeSlot,
+        date: targetDate,
+        address,
+        category,
+        tier,
+        distance,
+        totalPrice,
+        commission,
+        providerEarnings,
+        status: 'Pending',
+      });
+
+      created.push({ date: dateLabel, offerId: offer._id });
+    }
+
+    // Increment provider's pending offers count for each successfully created offer
+    if (created.length > 0) {
+      provider.pendingOffers += created.length;
+      await provider.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Created ${created.length} booking(s), skipped ${skipped.length}`,
+      created,
+      skipped,
+    });
+  } catch (error) {
+    console.error('recurring-booking error:', error);
+    res.status(500).json({ success: false, message: 'Failed to create recurring booking', error: error.message });
   }
 });
 

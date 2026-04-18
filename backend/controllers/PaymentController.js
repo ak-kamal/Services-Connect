@@ -82,15 +82,12 @@ export const stripeWebhook = async (req, res) => {
       // Use providerEarnings (after commission) instead of totalPrice
       provider.totalEarnings = (provider.totalEarnings || 0) + offer.providerEarnings;
 
-<<<<<<< HEAD
       // Recalculate average rating
       const allRatedOffers = await Offer.find({
         providerId: offer.providerId,
         rating: { $exists: true, $gte: 1 }
       });
-=======
-await calculateTrustScore(provider);
->>>>>>> feature/trust-system
+      await calculateTrustScore(provider);
 
       if (allRatedOffers.length > 0) {
         const totalRating = allRatedOffers.reduce((sum, o) => sum + o.rating, 0);

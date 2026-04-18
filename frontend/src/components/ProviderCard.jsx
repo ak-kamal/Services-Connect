@@ -54,7 +54,7 @@ return (
     <div className="card bg-base-100 shadow-lg relative">
       <div className="card-body">
         {/* Rank Display: Top right corner */}
-        <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-lg font-bold">
+        <div className="absolute top-2 right-2 bg-orange-500 text-white px-3 py-1 rounded-lg font-bold">
           Rank: {provider.rank}
         </div>
 
@@ -90,7 +90,7 @@ return (
             className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none px-6"
             onClick={handleCheckAvailability}
           >
-            {isAvailable ? t('provider.checkAvailability') : t('provider.noSlots')}
+            {t('provider.checkAvailability')}
           </button>
         </div>
       </div>

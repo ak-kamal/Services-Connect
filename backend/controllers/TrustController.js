@@ -1,3 +1,5 @@
+import UserModel from '../models/User.js';
+
 const calculateTrustScore = async (provider) => {
   if (!provider) {
     throw new Error('Provider not found');
