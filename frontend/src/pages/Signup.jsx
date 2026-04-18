@@ -102,6 +102,8 @@ const Signup = () => {
     <div className="max-w-lg mx-auto mt-10">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl">{t('signup.title')}</h2>
+      </div>
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
         <LanguageToggle />
       </div>
 

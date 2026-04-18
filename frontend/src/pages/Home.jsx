@@ -114,18 +114,23 @@ function Home() {
 
       {/* Navbar */}
       <div className="navbar bg-base-100 shadow-md px-6">
-        <div className="flex-1">
+        {/* Left — brand */}
+        <div className="navbar-start">
           <Link to="/" className="text-2xl font-bold text-primary">
             {t('nav.brand')}
           </Link>
         </div>
 
-        <div className="flex-none gap-1">
+        {/* Center — language toggle */}
+        <div className="navbar-center">
           <LanguageToggle />
+        </div>
 
+        {/* Right — actions */}
+        <div className="navbar-end gap-2">
           {loggedInUser && role === 'customer' && (
             <button
-              className="btn btn-sm btn-primary mr-3"
+              className="btn btn-sm btn-primary"
               onClick={() => {
                 setActiveView('requests');
                 fetchMyOffers();

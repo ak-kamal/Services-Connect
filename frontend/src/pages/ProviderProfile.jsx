@@ -127,10 +127,15 @@ function ProviderProfile() {
     <div className="min-h-screen bg-base-200">
       {/* NAVBAR */}
       <div className="navbar bg-base-100 shadow px-6">
-        <h1 className="text-xl font-bold flex-1">{t('provider.dashboard')}</h1>
+        <div className="navbar-start">
+          <h1 className="text-xl font-bold">{t('provider.dashboard')}</h1>
+        </div>
 
-        <LanguageToggle className="mr-2" />
+        <div className="navbar-center">
+          <LanguageToggle />
+        </div>
 
+        <div className="navbar-end">
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn btn-circle avatar">
             <div className="w-10 bg-primary text-white flex items-center justify-center rounded-full">
@@ -145,6 +150,7 @@ function ProviderProfile() {
               <button onClick={handleLogout}>{t('common.logout')}</button>
             </li>
           </ul>
+        </div>
         </div>
       </div>
 
