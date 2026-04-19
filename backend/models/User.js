@@ -89,7 +89,11 @@ const userSchema = new Schema({
     enum: ["newbie", "rising star", "trusted", "expert"],
     default: "newbie",
   },
-});
+  signupIp: {
+  type: String,
+  default: null
+},
+}, { timestamps: true });
 
 const UserModel = mongoose.model("User", userSchema);
 export default UserModel;

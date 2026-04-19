@@ -2,13 +2,14 @@ import UserModel from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import createProviderSlots from "./SlotController.js";
+import Alert from "../models/Alert.js";
 
 const signup = async (req, res) => {
     try {
         const { name, email, password, role, dateOfBirth, nidImageUrl, nidImagePublicId, location } = req.body;
 
-        const user = await UserModel.findOne({ email });
-        if (user) {
+        const existingUser = await UserModel.findOne({ email });
+        if (existingUser) {
             return res.status(409).json({
                 message: "User already exists, you can login",
                 success: false
@@ -16,17 +17,66 @@ const signup = async (req, res) => {
         }
 
         // validate location
-    if (!location || !location.lat || !location.lng) {
-      return res.status(400).json({
-        message: "Location is required",
-        success: false,
-      });
-    }
+        if (!location || !location.lat || !location.lng) {
+            return res.status(400).json({
+                message: "Location is required",
+                success: false,
+            });
+        }
 
-        const userModel = new UserModel({ name, email, password, role, dateOfBirth, nidImageUrl, nidImagePublicId, location });
-        userModel.password = await bcrypt.hash(password, 10);
+        // Get client IP
+        const clientIp = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+        console.log("Client IP:", clientIp);
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Create and save user FIRST
+        const userModel = new UserModel({ 
+            name, 
+            email, 
+            password: hashedPassword, 
+            role, 
+            dateOfBirth, 
+            nidImageUrl, 
+            nidImagePublicId, 
+            location,
+            signupIp: clientIp
+        });
 
         await userModel.save();
+        
+        // ─── ANOMALY DETECTION: Check AFTER saving ───
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        
+        // Now query INCLUDING the user we just saved
+        const accountsFromThisIp = await UserModel.find({
+            signupIp: clientIp,
+            createdAt: { $gte: twentyFourHoursAgo }
+        });
+
+        console.log(`Accounts from IP ${clientIp} in last 24h:`, accountsFromThisIp.length);
+        // If 2 or more accounts from this IP in last 24h, create alert
+        if (accountsFromThisIp.length >= 2) {
+            // Get all previous accounts (excluding the current one)
+            const previousAccounts = accountsFromThisIp.filter(
+                u => u._id.toString() !== userModel._id.toString()
+            );
+            
+            await Alert.create({
+                type: "1",
+                message: `${accountsFromThisIp.length} accounts created from IP: ${clientIp} in last 24h`,
+                details: {
+                    ip: clientIp,
+                    newUserId: userModel._id,
+                    newUserEmail: email,
+                    previousUserIds: previousAccounts.map(u => u._id),
+                    previousUserEmails: previousAccounts.map(u => u.email),
+                    totalAccountsIn24h: accountsFromThisIp.length
+                }
+            });
+            console.log("Alert created for multiple accounts from same IP");
+        }
+        // ─────────────────────────────────────────────────
 
         // Create slots for the provider
         if (role !== 'customer') {
@@ -38,6 +88,7 @@ const signup = async (req, res) => {
             success: true
         });
     } catch (error) {
+        console.error("Signup error:", error);
         res.status(500).json({
             message: "Internal server error",
             success: false

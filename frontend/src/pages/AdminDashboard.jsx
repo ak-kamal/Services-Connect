@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { handleSuccess } from "../utils";
+import AlertCard from "../components/AlertCard";
 
 function AdminDashboard() {
   const [loggedInUser, setLoggedInUser] = useState("");
   const [role, setRole] = useState("");
-
+  const [alerts, setAlerts] = useState([]);
   const [activeView, setActiveView] = useState("dashboard");
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -44,7 +45,7 @@ function AdminDashboard() {
     navigate("/login");
   };
 
-  // 📡 FETCH COMPLAINTS
+  // FETCH COMPLAINTS
   const fetchComplaints = async () => {
     try {
       setLoading(true);
@@ -67,16 +68,49 @@ function AdminDashboard() {
     }
   };
 
+  const fetchAlerts = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("http://localhost:5000/api/alerts", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAlerts(data.alerts);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const markAlertRead = async (alertId) => {
+    try {
+      await fetch(`http://localhost:5000/api/alerts/${alertId}/read`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      fetchAlerts(); // Refresh alerts
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-base-200">
       
-      {/* 🔵 NAVBAR */}
+      {/*  NAVBAR */}
       <div className="navbar bg-base-100 shadow px-6">
         <h1 className="text-xl font-bold flex-1">
           Admin Dashboard
         </h1>
 
-        {/* 👤 AVATAR */}
+        {/*  AVATAR */}
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn btn-circle avatar">
             <div className="w-10 bg-primary text-white flex items-center justify-center rounded-full">
@@ -94,10 +128,10 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* 🧱 CONTENT */}
+      {/*  CONTENT */}
       <div className="max-w-5xl mx-auto p-6">
 
-        {/* 🔘 TABS */}
+        {/*  TABS */}
         <div className="tabs mb-6 gap-2">
           <button
             className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "dashboard" && "tab-active"}`}
@@ -115,9 +149,24 @@ function AdminDashboard() {
           >
             Complaints
           </button>
+
+          <button
+  className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "alerts" && "tab-active"}`}
+  onClick={() => {
+    setActiveView("alerts");
+    fetchAlerts();
+  }}
+>
+  Alerts
+  {alerts.filter(a => !a.read).length > 0 && (
+    <span className="ml-2 badge badge-error badge-sm">
+      {alerts.filter(a => !a.read).length}
+    </span>
+  )}
+</button>
         </div>
 
-        {/* 🏠 DASHBOARD VIEW */}
+        {/*  DASHBOARD VIEW */}
         {activeView === "dashboard" && (
           <>
             <div className="card bg-base-100 shadow p-6">
@@ -152,7 +201,7 @@ function AdminDashboard() {
         </>
         )}
 
-        {/* 🚨 COMPLAINTS VIEW */}
+        {/*  COMPLAINTS VIEW */}
         {activeView === "complaints" && (
           <div>
             <h2 className="text-2xl font-bold mb-4">All Complaints</h2>
@@ -193,6 +242,31 @@ function AdminDashboard() {
             )}
           </div>
         )}
+
+        {/*  ALERTS VIEW */}
+{activeView === "alerts" && (
+  <div>
+    <h2 className="text-2xl font-bold mb-4">Anomaly Alerts</h2>
+    
+    {loading ? (
+      <p>Loading...</p>
+    ) : alerts.length === 0 ? (
+      <div className="card bg-base-100 shadow p-6 text-center">
+        <p className="text-gray-500">No alerts found</p>
+      </div>
+    ) : (
+      <div className="space-y-4">
+        {alerts.map((alert) => (
+          <AlertCard 
+            key={alert._id} 
+            alert={alert} 
+            onMarkRead={markAlertRead}
+          />
+        ))}
+      </div>
+    )}
+  </div>
+)}
 
       </div>
 

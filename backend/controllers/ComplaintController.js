@@ -46,7 +46,7 @@ export const createComplaint = async (req, res) => {
 export const getAllComplaints = async (req, res) => {
   try {
     const complaints = await Complaint.find()
-      .populate("customerId", "name") // ✅ only get customer name
+      .populate("customerId", "name") //  only get customer name
       .sort({ createdAt: -1 }); // latest first (optional)
 
     res.status(200).json({

@@ -139,7 +139,7 @@ providerRouter.get('/providers', async (req, res) => {
       // Weighting factors (adjust as needed)
       const w_distance = 0.5;
       const w_price = 0.3;
-      const w_jobs = 0.2;
+      const w_jobs = 0.9;
 
       console.log("Normalized Distance Factor:", distanceFactor);
       console.log("Price Factor:", priceFactor);

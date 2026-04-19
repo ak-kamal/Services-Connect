@@ -17,6 +17,7 @@ import slotRouter from "./routes/slotRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import ComplainRouter from "./routes/ComplainRoutes.js";
+import alertRouter from "./routes/alertRoutes.js";
 
 import User from "./models/User.js";
 import Message from "./models/Message.js";
@@ -58,6 +59,9 @@ app.use("/api", messageRouter);
 app.use("/api", chatRouter);
 app.use("/api", ComplainRouter);
 app.use('/api', providerStatsRoutes);
+app.use("/api", alertRouter);
+
+
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 
 // Auth middleware: verify JWT and attach user info to socket
