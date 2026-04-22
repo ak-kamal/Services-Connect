@@ -76,8 +76,8 @@ function Login() {
   }
 
   return (
-    <div className="hero min-h-screen bg-base-200 px-4 relative">
-      <div className="absolute top-4 right-4">
+    <div className="hero min-h-screen bg-base-200 px-4">
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
         <LanguageToggle />
       </div>
 

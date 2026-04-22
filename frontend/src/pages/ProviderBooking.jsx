@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import moment from 'moment';
+import LanguageToggle from '../components/LanguageToggle';
 import { useLanguage } from '../i18n/LanguageContext';
 
 const TIME_SLOTS = ['8:00 AM - 12:00 PM', '12:00 PM - 4:00 PM', '4:00 PM - 8:00 PM'];
@@ -176,127 +177,134 @@ function ProviderBooking() {
   };
 
   return (
-    <div className="provider-booking p-6">
-      {provider && (
-        <div className="mb-4">
-          <h3 className="text-2xl font-bold">{provider.name}</h3>
-          <p className="capitalize text-gray-500">{provider.role}</p>
-        </div>
-      )}
-
-      {(!category || !tier || !totalPrice) && (
-        <div className="alert alert-warning mb-4">
-          <span>{t('booking.missingPricingWarning')}</span>
-        </div>
-      )}
-
-      <p className="text-sm text-gray-400 mb-3">{t('booking.rightClickHint')}</p>
-
-      <div className="overflow-x-auto">
-        <table className="table-auto w-full">
-          <thead>
-            <tr>
-              <th>{t('booking.time')}</th>
-              {dates.map((date, i) => (
-                <th key={i}>{moment(date).format('DD MMM')}</th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody>
-            {TIME_SLOTS.map((timeSlot) => (
-              <tr key={timeSlot}>
-                <td className="font-medium">{timeSlot}</td>
-                {dates.map((date, i) => {
-                  const status = getSlotStatus(timeSlot, date);
-                  return (
-                    <td key={i}>
-                      <button
-                        className={`btn btn-sm ${
-                          status === 'booked'
-                            ? 'btn-warning'
-                            : status === 'requested'
-                            ? 'btn-info'
-                            : 'btn-success'
-                        }`}
-                        disabled={status !== 'available'}
-                        onClick={() => handleBookSlot(timeSlot, date)}
-                        onContextMenu={(e) => {
-                          e.preventDefault();
-                          if (status === 'available') {
-                            setFrequency('weekly');
-                            setOccurrences(4);
-                            setRecurringModal({ timeSlot, date });
-                          }
-                        }}
-                      >
-                        {status === 'booked'
-                          ? t('booking.booked')
-                          : status === 'requested'
-                          ? t('booking.requested')
-                          : t('booking.available')}
-                      </button>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="min-h-screen bg-base-200 flex flex-col">
+      {/* Fixed Language Toggle at top */}
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+        <LanguageToggle />
       </div>
 
-      {/* Recurring Booking Modal */}
-      {recurringModal && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mb-4">{t('booking.recurringModalTitle')}</h3>
+      <div className="provider-booking p-6">
+        {provider && (
+          <div className="mb-4">
+            <h3 className="text-2xl font-bold">{provider.name}</h3>
+            <p className="capitalize text-gray-500">{t(`common.${provider.role}`)}</p>
+          </div>
+        )}
 
-            <p className="mb-3 text-sm text-gray-600">
-              {t('booking.startingDate')}: <strong>{moment(recurringModal.date).format('DD MMM YYYY')}</strong> &mdash; {recurringModal.timeSlot}
-            </p>
+        {(!category || !tier || !totalPrice) && (
+          <div className="alert alert-warning mb-4">
+            <span>{t('booking.missingPricingWarning')}</span>
+          </div>
+        )}
 
-            <div className="form-control mb-3">
-              <label className="label">
-                <span className="label-text">{t('booking.frequency')}</span>
-              </label>
-              <select
-                className="select select-bordered"
-                value={frequency}
-                onChange={(e) => setFrequency(e.target.value)}
-              >
-                <option value="weekly">{t('booking.weekly')}</option>
-                <option value="biweekly">{t('booking.biweekly')}</option>
-                <option value="monthly">{t('booking.monthly')}</option>
-              </select>
-            </div>
+        <p className="text-sm text-gray-400 mb-3">{t('booking.rightClickHint')}</p>
 
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text">{t('booking.occurrences')} (1–12)</span>
-              </label>
-              <input
-                type="number"
-                className="input input-bordered"
-                min={1}
-                max={12}
-                value={occurrences}
-                onChange={(e) => setOccurrences(e.target.value)}
-              />
-            </div>
+        <div className="overflow-x-auto">
+          <table className="table-auto w-full">
+            <thead>
+              <tr>
+                <th>{t('booking.time')}</th>
+                {dates.map((date, i) => (
+                  <th key={i}>{moment(date).format('DD MMM')}</th>
+                ))}
+              </tr>
+            </thead>
 
-            <div className="modal-action">
-              <button className="btn btn-success" onClick={handleBookRecurring}>
-                {t('booking.confirm')}
-              </button>
-              <button className="btn" onClick={() => setRecurringModal(null)}>
-                {t('booking.cancel')}
-              </button>
+            <tbody>
+              {TIME_SLOTS.map((timeSlot) => (
+                <tr key={timeSlot}>
+                  <td className="font-medium">{timeSlot}</td>
+                  {dates.map((date, i) => {
+                    const status = getSlotStatus(timeSlot, date);
+                    return (
+                      <td key={i}>
+                        <button
+                          className={`btn btn-sm ${
+                            status === 'booked'
+                              ? 'btn-warning'
+                              : status === 'requested'
+                              ? 'btn-info'
+                              : 'btn-success'
+                          }`}
+                          disabled={status !== 'available'}
+                          onClick={() => handleBookSlot(timeSlot, date)}
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            if (status === 'available') {
+                              setFrequency('weekly');
+                              setOccurrences(4);
+                              setRecurringModal({ timeSlot, date });
+                            }
+                          }}
+                        >
+                          {status === 'booked'
+                            ? t('booking.booked')
+                            : status === 'requested'
+                            ? t('booking.requested')
+                            : t('booking.available')}
+                        </button>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Recurring Booking Modal */}
+        {recurringModal && (
+          <div className="modal modal-open">
+            <div className="modal-box">
+              <h3 className="font-bold text-lg mb-4">{t('booking.recurringModalTitle')}</h3>
+
+              <p className="mb-3 text-sm text-gray-600">
+                {t('booking.startingDate')}: <strong>{moment(recurringModal.date).format('DD MMM YYYY')}</strong> &mdash; {recurringModal.timeSlot}
+              </p>
+
+              <div className="form-control mb-3">
+                <label className="label">
+                  <span className="label-text">{t('booking.frequency')}</span>
+                </label>
+                <select
+                  className="select select-bordered"
+                  value={frequency}
+                  onChange={(e) => setFrequency(e.target.value)}
+                >
+                  <option value="weekly">{t('booking.weekly')}</option>
+                  <option value="biweekly">{t('booking.biweekly')}</option>
+                  <option value="monthly">{t('booking.monthly')}</option>
+                </select>
+              </div>
+
+              <div className="form-control mb-4">
+                <label className="label">
+                  <span className="label-text">{t('booking.occurrences')}</span>
+                </label>
+                <input
+                  type="number"
+                  className="input input-bordered"
+                  min={1}
+                  max={12}
+                  value={occurrences}
+                  onChange={(e) => setOccurrences(e.target.value)}
+                />
+              </div>
+
+              <div className="modal-action">
+                <button className="btn btn-success" onClick={handleBookRecurring}>
+                  {t('booking.confirm')}
+                </button>
+                <button className="btn" onClick={() => setRecurringModal(null)}>
+                  {t('booking.cancel')}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <ToastContainer />
+        <ToastContainer />
+      </div>
     </div>
   );
 }

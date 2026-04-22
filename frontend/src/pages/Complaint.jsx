@@ -13,7 +13,7 @@ function Complaint() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔥 Fetch providers when role changes
+  //  Fetch providers when role changes
   const handleRoleChange = async (e) => {
     const selectedRole = e.target.value;
     setRole(selectedRole);
@@ -38,7 +38,7 @@ function Complaint() {
     }
   };
 
-  // 🔥 Submit Complaint
+  //  Submit Complaint
   const handleSubmit = async (e) => {
     e.preventDefault();
 

@@ -1,5 +1,8 @@
+import { useLanguage } from '../i18n/LanguageContext';
+
 function AlertCard({ alert, onMarkRead }) {
   const isType1 = alert.type === "1";
+  const { t } = useLanguage();
   
   return (
     <div 
@@ -16,10 +19,10 @@ function AlertCard({ alert, onMarkRead }) {
               isType1 ? "badge-warning" : "badge-secondary"
             }`}
           >
-            Type {alert.type}
+            {t('admin.alerts.type')} {alert.type}
           </span>
           {!alert.read && (
-            <span className="badge badge-error badge-sm">NEW</span>
+            <span className="badge badge-error badge-sm">{t('admin.alerts.new')}</span>
           )}
         </div>
         <span className="text-xs text-gray-500">
@@ -32,18 +35,18 @@ function AlertCard({ alert, onMarkRead }) {
       {/* Type 1 specific details */}
       {isType1 && alert.details && (
         <div className="text-sm text-gray-600 mt-2">
-          <p>IP: {alert.details.ip}</p>
-          <p>New: {alert.details.newUserEmail}</p>
-          <p>Previous: {alert.details.previousUserEmails?.join(", ")}</p>
+          <p>{t('admin.alerts.ip')}: {alert.details.ip}</p>
+          <p>{t('admin.alerts.newUser')}: {alert.details.newUserEmail}</p>
+          <p>{t('admin.alerts.previousUsers')}: {alert.details.previousUserEmails?.join(", ")}</p>
         </div>
       )}
       
       {/* Type 2 specific details */}
       {!isType1 && alert.details && (
         <div className="text-sm text-gray-600 mt-2">
-          <p>Customer: {alert.details.customerName}</p>
-          <p>Email: {alert.details.customerEmail}</p>
-          <p>Offers sent: {alert.details.offerCount}</p>
+          <p>{t('admin.alerts.customer')}: {alert.details.customerName}</p>
+          <p>{t('admin.alerts.email')}: {alert.details.customerEmail}</p>
+          <p>{t('admin.alerts.offersSent')}: {alert.details.offerCount}</p>
         </div>
       )}
       
@@ -52,7 +55,7 @@ function AlertCard({ alert, onMarkRead }) {
           className="btn btn-sm btn-ghost mt-3"
           onClick={() => onMarkRead(alert._id)}
         >
-          Mark as Read
+          {t('admin.alerts.markAsRead')}
         </button>
       )}
     </div>

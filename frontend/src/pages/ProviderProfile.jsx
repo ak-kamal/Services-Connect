@@ -75,7 +75,7 @@ function ProviderProfile() {
     e.preventDefault();
 
     const token = localStorage.getItem("token");
-    if (!selectedFile) return handleError("Select file first");
+    if (!selectedFile) return handleError(t('provider.alerts.selectFileFirst'));
 
     const formData = new FormData();
     formData.append("certification", selectedFile);
@@ -94,7 +94,7 @@ function ProviderProfile() {
       if (!res.ok || !data.success) throw new Error(data.message);
 
       setCertification(data.certification);
-      handleSuccess("Uploaded!");
+      handleSuccess(t('provider.alerts.uploaded'));
     } catch (err) {
       handleError(err.message);
     } finally {
@@ -109,7 +109,7 @@ function ProviderProfile() {
 
   const handleLogout = () => {
     localStorage.clear();
-    handleSuccess("Logged out");
+    handleSuccess(t('common.loggedOut'));
     navigate("/login");
   };
 
@@ -133,10 +133,15 @@ function ProviderProfile() {
     <div className="min-h-screen bg-base-200">
       {/* NAVBAR */}
       <div className="navbar bg-base-100 shadow px-6">
-        <h1 className="text-xl font-bold flex-1">{t('provider.dashboard')}</h1>
+        <div className="navbar-start">
+          <h1 className="text-xl font-bold">{t('provider.dashboard')}</h1>
+        </div>
 
-        <LanguageToggle className="mr-2" />
+        <div className="navbar-center">
+          <LanguageToggle />
+        </div>
 
+        <div className="navbar-end">
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="btn btn-circle avatar">
             <div className="w-10 bg-primary text-white flex items-center justify-center rounded-full">
@@ -152,6 +157,7 @@ function ProviderProfile() {
             </li>
           </ul>
         </div>
+        </div>
       </div>
 
       {/* CONTENT */}
@@ -161,21 +167,21 @@ function ProviderProfile() {
             className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "profile" && "tab-active"} px-2`}
             onClick={() => setActiveView("profile")}
           >
-            Profile
+            {t('provider.profile')}
           </button>
 
           <button
             className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "offers" && "tab-active"} px-2`}
             onClick={() => setActiveView("offers")}
           >
-            Offers
+            {t('provider.offers')}
           </button>
 
           <button
             className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "stats" && "tab-active"} px-2`}
             onClick={handleStats}
           >
-            Stats
+            {t('provider.statsTab')}
           </button>
         </div>
 
@@ -192,7 +198,7 @@ function ProviderProfile() {
               )}
             </div>
 
-            <p className="mb-1">{t('provider.roleLabel')}: {formattedRole}</p>
+            <p className="mb-1">{t('provider.roleLabel')}: {t(`common.${role}`)}</p>
             <p className="mb-4">{t('provider.emailLabel')}: {email}</p>
 
             <form onSubmit={handleUploadCertification}>

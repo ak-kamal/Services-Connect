@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { handleSuccess } from "../utils";
 import AlertCard from "../components/AlertCard";
+import LanguageToggle from "../components/LanguageToggle";
+import { useLanguage } from "../i18n/LanguageContext";
 
 function AdminDashboard() {
   const [loggedInUser, setLoggedInUser] = useState("");
@@ -13,6 +15,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // 🔐 AUTH CHECK
   useEffect(() => {
@@ -41,7 +44,7 @@ function AdminDashboard() {
   // 🚪 LOGOUT
   const handleLogout = () => {
     localStorage.clear();
-    handleSuccess("Logged out");
+    handleSuccess(t('common.loggedOut'));
     navigate("/login");
   };
 
@@ -106,25 +109,33 @@ function AdminDashboard() {
       
       {/*  NAVBAR */}
       <div className="navbar bg-base-100 shadow px-6">
-        <h1 className="text-xl font-bold flex-1">
-          Admin Dashboard
-        </h1>
+        <div className="navbar-start">
+          <h1 className="text-xl font-bold">
+            {t('admin.dashboard')}
+          </h1>
+        </div>
 
-        {/*  AVATAR */}
-        <div className="dropdown dropdown-end">
-          <div tabIndex={0} role="button" className="btn btn-circle avatar">
-            <div className="w-10 bg-primary text-white flex items-center justify-center rounded-full">
-              {initial}
+        <div className="navbar-center">
+          <LanguageToggle />
+        </div>
+
+        <div className="navbar-end">
+          {/*  AVATAR */}
+          <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn btn-circle avatar">
+              <div className="w-10 bg-primary text-white flex items-center justify-center rounded-full">
+                {initial}
+              </div>
             </div>
-          </div>
 
-          <ul className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-40">
-            <li className="font-semibold">{loggedInUser}</li>
-            <li className="capitalize">{formattedRole}</li>
-            <li>
-              <button onClick={handleLogout}>Logout</button>
-            </li>
-          </ul>
+            <ul className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-40 z-50">
+              <li className="font-semibold">{loggedInUser}</li>
+              <li className="capitalize">{formattedRole}</li>
+              <li>
+                <button onClick={handleLogout}>{t('common.logout')}</button>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -137,7 +148,7 @@ function AdminDashboard() {
             className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "dashboard" && "tab-active"}`}
             onClick={() => setActiveView("dashboard")}
           >
-            Dashboard
+            {t('admin.dashboard')}
           </button>
 
           <button
@@ -147,23 +158,23 @@ function AdminDashboard() {
               fetchComplaints();
             }}
           >
-            Complaints
+            {t('admin.complaints')}
           </button>
 
           <button
-  className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "alerts" && "tab-active"}`}
-  onClick={() => {
-    setActiveView("alerts");
-    fetchAlerts();
-  }}
->
-  Alerts
-  {alerts.filter(a => !a.read).length > 0 && (
-    <span className="ml-2 badge badge-error badge-sm">
-      {alerts.filter(a => !a.read).length}
-    </span>
-  )}
-</button>
+            className={`tab rounded-lg bg-blue-300 hover:bg-blue-400 ${activeView === "alerts" && "tab-active"}`}
+            onClick={() => {
+              setActiveView("alerts");
+              fetchAlerts();
+            }}
+          >
+            {t('admin.anomalyAlerts')}
+            {alerts.filter(a => !a.read).length > 0 && (
+              <span className="ml-2 badge badge-error badge-sm">
+                {alerts.filter(a => !a.read).length}
+              </span>
+            )}
+          </button>
         </div>
 
         {/*  DASHBOARD VIEW */}
@@ -171,55 +182,54 @@ function AdminDashboard() {
           <>
             <div className="card bg-base-100 shadow p-6">
               <h2 className="text-2xl font-bold mb-2">
-                Welcome, {loggedInUser} 👋
+                {t('admin.welcome', { name: loggedInUser })} 👋
               </h2>
 
               <p className="text-gray-500">
-                This is your admin control panel.
+                {t('admin.controlPanel')}
               </p>
             </div>
-
 
             {/* FIX: add container */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
 
-            <div className="card bg-base-100 shadow p-4">
-                <h3 className="font-bold text-lg">Users</h3>
+              <div className="card bg-base-100 shadow p-4">
+                <h3 className="font-bold text-lg">{t('admin.users')}</h3>
                 <p className="text-sm text-gray-500">
-                View & control users
+                  {t('admin.usersDesc')}
                 </p>
-            </div>
+              </div>
 
-            <div className="card bg-base-100 shadow p-4">
-                <h3 className="font-bold text-lg">Providers</h3>
+              <div className="card bg-base-100 shadow p-4">
+                <h3 className="font-bold text-lg">{t('admin.providers')}</h3>
                 <p className="text-sm text-gray-500">
-                Verify providers
+                  {t('admin.providersDesc')}
                 </p>
-            </div>
+              </div>
 
             </div>
-        </>
+          </>
         )}
 
         {/*  COMPLAINTS VIEW */}
         {activeView === "complaints" && (
           <div>
-            <h2 className="text-2xl font-bold mb-4">All Complaints</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('admin.allComplaints')}</h2>
 
             {loading ? (
-              <p>Loading...</p>
+              <p>{t('common.loading')}</p>
             ) : complaints.length === 0 ? (
-              <p>No complaints found</p>
+              <p>{t('admin.noComplaints')}</p>
             ) : (
               <div className="space-y-4">
                 {complaints.map((c) => (
                   <div key={c._id} className="card bg-base-100 shadow p-4">
 
-                    <p><strong>Customer:</strong> {c.customerId?.name}</p>
-                    <p><strong>Provider Name:</strong> {c.providerName}</p>
-                    <p><strong>Provider Role:</strong> {c.providerRole}</p>
-                    <p><strong>Description:</strong> {c.complaintDescription}</p>
-                    <p><strong>Status:</strong> {c.status}</p>
+                    <p><strong>{t('admin.customer')}:</strong> {c.customerId?.name}</p>
+                    <p><strong>{t('admin.providerName')}:</strong> {c.providerName}</p>
+                    <p><strong>{t('admin.providerRole')}:</strong> {c.providerRole}</p>
+                    <p><strong>{t('admin.description')}:</strong> {c.complaintDescription}</p>
+                    <p><strong>{t('admin.status')}:</strong> {c.status}</p>
 
                     {c.file?.path ? (
                       <a
@@ -228,11 +238,11 @@ function AdminDashboard() {
                         rel="noreferrer"
                         className="link link-primary mt-2"
                       >
-                        View File
+                        {t('admin.viewFile')}
                       </a>
                     ) : (
                       <p className="text-sm text-gray-400 mt-2">
-                        No file uploaded
+                        {t('admin.noFileUploaded')}
                       </p>
                     )}
 
@@ -244,29 +254,29 @@ function AdminDashboard() {
         )}
 
         {/*  ALERTS VIEW */}
-{activeView === "alerts" && (
-  <div>
-    <h2 className="text-2xl font-bold mb-4">Anomaly Alerts</h2>
-    
-    {loading ? (
-      <p>Loading...</p>
-    ) : alerts.length === 0 ? (
-      <div className="card bg-base-100 shadow p-6 text-center">
-        <p className="text-gray-500">No alerts found</p>
-      </div>
-    ) : (
-      <div className="space-y-4">
-        {alerts.map((alert) => (
-          <AlertCard 
-            key={alert._id} 
-            alert={alert} 
-            onMarkRead={markAlertRead}
-          />
-        ))}
-      </div>
-    )}
-  </div>
-)}
+        {activeView === "alerts" && (
+          <div>
+            <h2 className="text-2xl font-bold mb-4">{t('admin.anomalyAlerts')}</h2>
+            
+            {loading ? (
+              <p>{t('common.loading')}</p>
+            ) : alerts.length === 0 ? (
+              <div className="card bg-base-100 shadow p-6 text-center">
+                <p className="text-gray-500">{t('admin.noAlerts')}</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {alerts.map((alert) => (
+                  <AlertCard 
+                    key={alert._id} 
+                    alert={alert} 
+                    onMarkRead={markAlertRead}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
       </div>
 

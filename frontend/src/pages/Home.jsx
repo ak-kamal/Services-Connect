@@ -167,30 +167,34 @@ return (
     <div className="min-h-screen bg-base-200">
       {/* Navbar */}
       <div className="navbar bg-base-100 shadow-md px-6">
-        <div className="flex-1">
+        {/* Left — brand */}
+        <div className="navbar-start">
           <Link to="/" className="text-2xl font-bold text-primary">
             {t('nav.brand')}
           </Link>
         </div>
 
-        <div className="flex-none gap-1">
+        {/* Center — language toggle */}
+        <div className="navbar-center">
           <LanguageToggle />
+        </div>
 
-        {loggedInUser && role === 'customer' && (
+        <div className="navbar-end" gap-2>
+          {loggedInUser && role === 'customer' && (
 
           <>
 
             {/*  Complaint Button */}
             <button
-              className="btn btn-sm btn-error mr-3"
+              className="btn btn-sm btn-error mr-3 px-4 bg-red-300"
               onClick={() => navigate('/complaint')}
             >
-              Complaint
+              {t('nav.complaint')}
             </button>
 
             {/*  My Requests Button */}
             <button
-              className="btn btn-sm btn-primary mr-3"
+              className="btn btn-sm btn-primary mr-4 px-4 bg-blue-300"
               onClick={() => {
                 setActiveView('requests');
                 fetchMyOffers();
@@ -215,14 +219,14 @@ return (
               </div>
 
               <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
-                <li className="px-2 py-1 font-semibold">{loggedInUser}</li>
+                <li className="px-2 py-1 font-semibold bg-slate-500">{loggedInUser}</li>
                 <li className="px-2 py-1 text-sm capitalize">{role}</li>
                 <li><button onClick={handleLogout}>{t('common.logout')}</button></li>
               </ul>
             </div>
           )}
-        </div>
       </div>
+    </div>
 
       {/* HOME VIEW */}
       {activeView === 'home' && (
@@ -230,10 +234,10 @@ return (
           <section className="hero bg-base-200 py-16">
             <div className="hero-content text-center">
               <div className="max-w-3xl">
-                <h1 className="text-5xl font-bold">Book trusted home service providers</h1>
-                <p className="py-6">Find electricians, plumbers, carpenters and more.</p>
+                <h1 className="text-5xl font-bold">{t('home.heroTitle')}</h1>
+                <p className="py-6">{t('home.heroSub')}</p>
                 <Link to="/search-provider" className="btn btn-lg text-white btn-primary">
-                Find Providers
+                {t('home.findProviders')}
                 </Link>
               </div>
             </div>
@@ -255,14 +259,14 @@ return (
               {myOffers.map((offer) => (
                 <div key={offer._id} className="p-4 border rounded-lg shadow">
 
-                  <p><strong>Provider:</strong> {offer.providerId?.name}</p>
-                  <p><strong>Role:</strong> {offer.providerId?.role}</p>
-                  <p><strong>Date:</strong> {new Date(offer.date).toLocaleDateString()}</p>
-                  <p><strong>Time:</strong> {offer.timeSlot}</p>
-                  <p><strong>Category:</strong> {offer.category} </p>
-                  <p><strong>Tier:</strong> {offer.tier} </p>
-                  <p><strong>Total Price:</strong> {offer.totalPrice} BDT</p>
-                  <p><strong>Status:</strong> {offer.status}</p>
+                  <p><strong>{t('requests.provider')}:</strong> {offer.providerId?.name}</p>
+                  <p><strong>{t('requests.role')}:</strong> {offer.providerId?.role}</p>
+                  <p><strong>{t('requests.date')}:</strong> {new Date(offer.date).toLocaleDateString()}</p>
+                  <p><strong>{t('requests.time')}:</strong> {offer.timeSlot}</p>
+                  <p><strong>{t('provider.category')}:</strong> {offer.category} </p>
+                  <p><strong>{t('provider.tier')}:</strong> {offer.tier} </p>
+                  <p><strong>{t('requests.totalPrice')}:</strong> {offer.totalPrice} BDT</p>
+                  <p><strong>{t('requests.status')}:</strong> {offer.status}</p>
 
                   <p className="mt-2 font-semibold">
                     {offer.status === 'Pending' && t('requests.pending')}
@@ -276,7 +280,7 @@ return (
     className="btn btn-sm bg-blue-500 text-white mt-3 mr-2 px-2"
     onClick={() => setChatOffer(offer)}
   >
-    💬 Chat with Provider
+     {t('requests.chatWithProvider')}
   </button>
 )}
 
@@ -347,27 +351,27 @@ return (
       {/* PAST SERVICES VIEW */}
       {activeView === 'past' && (
         <div className="max-w-4xl mx-auto px-4 py-10">
-          <h2 className="text-3xl font-bold mb-6">Past Services</h2>
+          <h2 className="text-3xl font-bold mb-6">{t('requests.pastServices')}</h2>
 
           {loadingOffers ? (
-            <p>Loading...</p>
+            <p>{t('common.loading')}</p>
           ) : pastOffers.length === 0 ? (
-            <p>No past services found</p>
+            <p>{t('requests.noPastServices')}</p>
           ) : (
             <div className="space-y-4">
               {pastOffers.map((offer) => (
                 <div key={offer._id} className="p-4 border rounded-lg shadow">
-                  <p><strong>Provider:</strong> {offer.providerId?.name}</p>
-                  <p><strong>Role:</strong> {offer.providerId?.role}</p>
-                  <p><strong>Date:</strong> {new Date(offer.date).toLocaleDateString()}</p>
-                  <p><strong>Time:</strong> {offer.timeSlot}</p>
-                  <p><strong>Status:</strong> {offer.status}</p>
+                  <p><strong>{t('requests.provider')}:</strong> {offer.providerId?.name}</p>
+                  <p><strong>{t('requests.role')}:</strong> {offer.providerId?.role}</p>
+                  <p><strong>{t('requests.date')}:</strong> {new Date(offer.date).toLocaleDateString()}</p>
+                  <p><strong>{t('requests.time')}:</strong> {offer.timeSlot}</p>
+                  <p><strong>{t('requests.status')}:</strong> {offer.status}</p>
 
                   <button
                     className="btn btn-sm btn-outline btn-success mt-3"
                     onClick={() => navigate(`/provider-booking/${offer.providerId?._id}`)}
                   >
-                     Book Again
+                     {t('requests.bookAgain')}
                   </button>
                 </div>
               ))}
@@ -378,7 +382,7 @@ return (
             className="btn btn-primary mt-6"
             onClick={() => setActiveView('home')}
           >
-            Back
+            {t('common.back')}
           </button>
         </div>
       )}

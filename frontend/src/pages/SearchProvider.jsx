@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProviderCard from '../components/ProviderCard';
+import LanguageToggle from '../components/LanguageToggle'
+import { useLanguage } from '../i18n/LanguageContext'
 
 function SearchProvider() {
   const [role, setRole] = useState('');
@@ -14,79 +16,81 @@ function SearchProvider() {
   const [selectedTierData, setSelectedTierData] = useState(null);
   const navigate = useNavigate();
 
+  const { t } = useLanguage()
+
   // Role, category, and tier data with descriptions
   const roles = [
-  { value: 'electrician', label: 'Electrician' },
-  { value: 'plumber', label: 'Plumber' },
-  { value: 'carpenter', label: 'Carpenter' },
-  { value: 'housemaid', label: 'House maid' }
-];
+    { value: 'electrician', label: t('common.electrician') },
+    { value: 'plumber', label: t('common.plumber') },
+    { value: 'carpenter', label: t('common.carpenter') },
+    { value: 'housemaid', label: t('common.houseMaid') }
+  ];
   
   const categories = {
     electrician: [
-      { name: 'Installation', description: 'Setup of new electrical fixtures and wiring' },
-      { name: 'Repair', description: 'Fix faulty wiring, outlets, and electrical issues' },
-      { name: 'Inspection', description: 'Safety check and diagnostics of electrical systems' }
+      { name: 'Installation', description: t('search.categoryDescriptions.electrician.Installation') },
+      { name: 'Repair', description: t('search.categoryDescriptions.electrician.Repair') },
+      { name: 'Inspection', description: t('search.categoryDescriptions.electrician.Inspection') }
     ],
     plumber: [
-      { name: 'Installation', description: 'Setup of pipes, fixtures, and water systems' },
-      { name: 'Repair', description: 'Fix leaks, clogs, and damaged plumbing' },
-      { name: 'Cleaning', description: 'Drain cleaning and pipe maintenance' }
+      { name: 'Installation', description: t('search.categoryDescriptions.plumber.Installation') },
+      { name: 'Repair', description: t('search.categoryDescriptions.plumber.Repair') },
+      { name: 'Cleaning', description: t('search.categoryDescriptions.plumber.Cleaning') }
     ],
     carpenter: [
-      { name: 'Repair', description: 'Fix broken furniture, doors, and wooden structures' },
-      { name: 'Building', description: 'Custom furniture and wooden structure construction' },
-      { name: 'Installation', description: 'Install cabinets, shelves, and wooden fixtures' }
+      { name: 'Repair', description: t('search.categoryDescriptions.carpenter.Repair') },
+      { name: 'Building', description: t('search.categoryDescriptions.carpenter.Building') },
+      { name: 'Installation', description: t('search.categoryDescriptions.carpenter.Installation') }
     ],
     housemaid: [
-      { name: 'Cleaning', description: 'General house cleaning and tidying' },
-      { name: 'Cooking', description: 'Meal preparation and kitchen duties' },
-      { name: 'Laundry', description: 'Washing, drying, and folding clothes' }
+      { name: 'Cleaning', description: t('search.categoryDescriptions.housemaid.Cleaning') },
+      { name: 'Cooking', description: t('search.categoryDescriptions.housemaid.Cooking') },
+      { name: 'Laundry', description: t('search.categoryDescriptions.housemaid.Laundry') }
     ],
   };
   
   const tiers = {
     // Electrician Categories
     'Installation': [
-      { name: 'Basic', basePrice: 500, description: 'Single fixture/outlet installation' },
-      { name: 'Standard', basePrice: 1000, description: 'Multiple fixtures with basic wiring' },
-      { name: 'Advanced', basePrice: 2000, description: 'Complex installation with circuit setup' }
+      { name: 'Basic', basePrice: 500, description: t('search.tierDescriptions.electrician.Installation.Basic') },
+      { name: 'Standard', basePrice: 1000, description: t('search.tierDescriptions.electrician.Installation.Standard') },
+      { name: 'Advanced', basePrice: 2000, description: t('search.tierDescriptions.electrician.Installation.Advanced') }
     ],
     'Repair': [
-      { name: 'Basic', basePrice: 400, description: 'Minor fixes like switch/outlet replacement' },
-      { name: 'Standard', basePrice: 800, description: 'Circuit troubleshooting and wire repair' },
-      { name: 'Advanced', basePrice: 1500, description: 'Major electrical system repairs' }
+      { name: 'Basic', basePrice: 400, description: t('search.tierDescriptions.electrician.Repair.Basic') },
+      { name: 'Standard', basePrice: 800, description: t('search.tierDescriptions.electrician.Repair.Standard') },
+      { name: 'Advanced', basePrice: 1500, description: t('search.tierDescriptions.electrician.Repair.Advanced') }
     ],
     'Inspection': [
-      { name: 'Basic', basePrice: 300, description: 'Visual inspection of visible wiring' },
-      { name: 'Standard', basePrice: 600, description: 'Detailed inspection with basic testing' },
-      { name: 'Advanced', basePrice: 1000, description: 'Full system diagnostics with report' }
+      { name: 'Basic', basePrice: 300, description: t('search.tierDescriptions.electrician.Inspection.Basic') },
+      { name: 'Standard', basePrice: 600, description: t('search.tierDescriptions.electrician.Inspection.Standard') },
+      { name: 'Advanced', basePrice: 1000, description: t('search.tierDescriptions.electrician.Inspection.Advanced') }
     ],
     
     // Plumber Categories
     'Cleaning': [
-      { name: 'Basic', basePrice: 400, description: 'Single drain or fixture cleaning' },
-      { name: 'Standard', basePrice: 700, description: 'Multiple drains with basic tools' },
-      { name: 'Advanced', basePrice: 1200, description: 'Deep cleaning with specialized equipment' }
+      { name: 'Basic', basePrice: 400, description: t('search.tierDescriptions.plumber.Cleaning.Basic') },
+      { name: 'Standard', basePrice: 700, description: t('search.tierDescriptions.plumber.Cleaning.Standard') },
+      { name: 'Advanced', basePrice: 1200, description: t('search.tierDescriptions.plumber.Cleaning.Advanced') }
     ],
     
     // Carpenter Categories
     'Building': [
-      { name: 'Basic', basePrice: 800, description: 'Simple furniture assembly' },
-      { name: 'Standard', basePrice: 1500, description: 'Custom furniture construction' },
-      { name: 'Advanced', basePrice: 3000, description: 'Complex woodworking projects' }
+      { name: 'Basic', basePrice: 800, description: t('search.tierDescriptions.carpenter.Building.Basic') },
+      { name: 'Standard', basePrice: 1500, description: t('search.tierDescriptions.carpenter.Building.Standard') },
+      { name: 'Advanced', basePrice: 3000, description: t('search.tierDescriptions.carpenter.Building.Advanced') }
     ],
     
     // Housemaid Categories
     'Cooking': [
-      { name: 'Basic', basePrice: 300, description: 'Simple meal preparation (1-2 dishes)' },
-      { name: 'Standard', basePrice: 600, description: 'Full meal with multiple dishes' },
-      { name: 'Advanced', basePrice: 1000, description: 'Gourmet cooking with meal planning' }
+      { name: 'Basic', basePrice: 300, description: t('search.tierDescriptions.housemaid.Cooking.Basic') },
+      { name: 'Standard', basePrice: 600, description: t('search.tierDescriptions.housemaid.Cooking.Standard') },
+      { name: 'Advanced', basePrice: 1000, description: t('search.tierDescriptions.housemaid.Cooking.Advanced') }
     ],
     'Laundry': [
-      { name: 'Basic', basePrice: 200, description: 'Machine wash and dry (up to 5kg)' },
-      { name: 'Standard', basePrice: 400, description: 'Wash, dry, and fold (up to 10kg)' },
-      { name: 'Advanced', basePrice: 700, description: 'Full service with ironing and sorting' }
+      { name: 'Basic', basePrice: 200, description: t('search.tierDescriptions.housemaid.Laundry.Basic') },
+      { name: 'Standard', basePrice: 400, description: t('search.tierDescriptions.housemaid.Laundry.Standard') },
+      { name: 'Advanced', basePrice: 700, description: t('search.tierDescriptions.housemaid.Laundry.Advanced') }
     ],
   };
 
@@ -100,7 +104,7 @@ function SearchProvider() {
       const user = JSON.parse(localStorage.getItem("userData"));
 
       if (!user?.location?.lat) {
-        alert("Location not found. Please re-login.");
+        alert(t('search.alerts.locationNotFound'));
         return;
       }
 
@@ -138,10 +142,10 @@ function SearchProvider() {
         setProviders(sortedProviders);
 
     } else {
-      alert("Failed to fetch providers");
+      alert(t('search.alerts.fetchFailed'));
     }
   } catch (error) {
-    alert("Error fetching providers");
+    alert(t('search.alerts.fetchError'));
   }
 };
 
@@ -178,28 +182,32 @@ function SearchProvider() {
   return (
     <div className="min-h-screen bg-base-200 flex flex-col items-center justify-center p-4">
 
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+        <LanguageToggle />
+      </div>
+
   <div className="bg-base-100 shadow-xl rounded-2xl p-8 w-full max-w-md">
       <div className="mb-6 w-full max-w-md">
-        <label htmlFor="role" className="block text-lg font-semibold mb-2">Select Role</label>
+        <label htmlFor="role" className="block text-lg font-semibold mb-2">{t('search.selectRole')}</label>
         <select id="role" className="select select-bordered w-full" onChange={handleRoleChange} value={role}>
-          <option value="">Select Role</option>
+          <option value="">{t('search.selectRole')}</option>
           {roles.map((roleOption, index) => (
-  <option key={index} value={roleOption.value}>
-    {roleOption.label}
-  </option>
-))}
+            <option key={index} value={roleOption.value}>
+              {roleOption.label}
+            </option>
+          ))}
         </select>
       </div>
 
       {role && (
         <>
           <div className="mb-6 w-full max-w-md">
-            <label htmlFor="category" className="block text-lg font-semibold mb-2">Select Category</label>
+            <label htmlFor="category" className="block text-lg font-semibold mb-2">{t('search.selectCategory')}</label>
             <select id="category" className="select select-bordered w-full" onChange={handleCategoryChange} value={category}>
-              <option value="">Select Category</option>
-              {categories[role].map((categoryOption, index) => (
+              <option value="">{t('search.selectCategory')}</option>
+              {categories[role]?.map((categoryOption, index) => (
                 <option key={index} value={categoryOption.name}>
-                  {categoryOption.name} - {categoryOption.description}
+                  {t(`categories.${categoryOption.name}`)} - {categoryOption.description}
                 </option>
               ))}
             </select>
@@ -208,18 +216,18 @@ function SearchProvider() {
           {category && (
             <>
               <div className="mb-6 w-full max-w-md">
-                <label htmlFor="tier" className="block text-lg font-semibold mb-2">Select Tier</label>
+                <label htmlFor="tier" className="block text-lg font-semibold mb-2">{t('search.selectTier')}</label>
                 <select id="tier" className="select select-bordered w-full" onChange={handleTierChange} value={tier}>
-                  <option value="">Select Tier</option>
+                  <option value="">{t('search.selectTier')}</option>
                   {tiers[category]?.map((tierOption, index) => (
                     <option key={index} value={tierOption.name}>
-                      {tierOption.name} (BDT {tierOption.basePrice}) - {tierOption.description}
+                      {t(`tiers.${tierOption.name}`)} (BDT {tierOption.basePrice}) - {tierOption.description}
                     </option>
                   ))}
                 </select>
               </div>
 
-              <p className="text-sm text-base-content/60 mb-4">*Additional charges will apply based on provider's skills and distance from you.</p>
+              <p className="text-sm text-base-content/60 mb-4">{t('search.additionalCharges')}</p>
             </>
           )}
         </>
@@ -233,7 +241,7 @@ function SearchProvider() {
         checked={nearbyOnly}
         onChange={(e) => setNearbyOnly(e.target.checked)}
         />
-        <span className="label-text">Show nearby providers only (within 5km)</span>
+        <span className="label-text">{t('search.nearbyOnly')}</span>
     </label>
     </div>
 
@@ -243,7 +251,7 @@ function SearchProvider() {
           onClick={handleSubmit}
           disabled={!isSubmitEnabled}
         >
-          Find Providers
+          {t('search.findProviders')}
         </button>
       )}
       </div>
@@ -252,14 +260,14 @@ function SearchProvider() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-8 w-full">
           {providers.map((provider) => (
             <ProviderCard 
-  key={provider._id} 
-  provider={provider}
-  category={category}
-  tier={tier}
-  distance={provider.distance}
-  totalPrice={provider.totalPrice}
-  recommendationScore={provider.recommendationScore} // Optional: Show score or rank
-/>
+              key={provider._id} 
+              provider={provider}
+              category={category}
+              tier={tier}
+              distance={provider.distance}
+              totalPrice={provider.totalPrice}
+              recommendationScore={provider.recommendationScore} // Optional: Show score or rank
+            />
           ))}
         </div>
       )}
