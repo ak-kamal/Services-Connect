@@ -1,27 +1,99 @@
+//backend/model/User.js: 
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-    name: {
-        type: String,
-        required: true
+  name: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  nidImageUrl: {
+    type: String,
+  },
+  nidImagePublicId: {
+    type: String,
+  },
+  dateOfBirth: {
+    type: String,
+  },
+  role: {
+    type: String,
+    required: true,
+    enum: ["customer", "electrician", "plumber", "carpenter", "housemaid", "admin"],
+    default: "customer",
+  },
+  certification: {
+    fileName: {
+      type: String,
+      default: "",
     },
-    email: {
-        type: String,
-        required: true,
-        unique: true
+    fileUrl: {
+      type: String,
+      default: "",
     },
-    password: {
-        type: String,
-        required: true
+    uploadedAt: {
+      type: Date,
+      default: null,
     },
-    role: {
-        type: String,
-        required: true,
-        enum: ["customer", "electrician", "plumber", "carpenter", "driver"],
-        default: "customer"
-    }
-});
+    verified: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  location: {
+    lat: {
+      type: Number,
+      required: true,
+    },
+    lng: {
+      type: Number,
+      required: true,
+    },
+    address: {
+      type: String,
+      required: true,
+    },
+  },
 
-const UserModel = mongoose.model("users", userSchema);
+  completedJobs: {
+    type: Number,
+    default: 0,
+  },
+  pendingOffers: {
+    type: Number,
+    default: 0,
+  },
+  rating: {
+    type: Number,
+    default: 0,
+  },
+  totalEarnings: {
+    type: Number,
+    default: 0,
+  },
+  complaints: {
+    type: Number,
+    default: 0,
+  },
+  badge: {
+    type: String,
+    enum: ["newbie", "rising star", "trusted", "expert"],
+    default: "newbie",
+  },
+  signupIp: {
+  type: String,
+  default: null
+},
+}, { timestamps: true });
+
+const UserModel = mongoose.model("User", userSchema);
 export default UserModel;

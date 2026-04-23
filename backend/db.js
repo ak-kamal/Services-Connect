@@ -1,11 +1,15 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import dns from "dns";
 
 dotenv.config();
 
-const mongo_uri = process.env.MONGO_URI;
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
-mongoose.connect(mongo_uri)
+const mongo_uri = process.env.MONGO_URI;
+console.log(mongo_uri);
+
+mongoose.connect(mongo_uri, { family: 4 })
     .then(() => {
         console.log("Connected to MongoDB");
     })

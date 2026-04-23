@@ -1,3 +1,4 @@
+//backend/middlewares/AuthValidation.js:
 import Joi from "joi";
 
 const signupValidation = (req, res, next) => {
@@ -6,12 +7,22 @@ const signupValidation = (req, res, next) => {
         email: Joi.string().email().required(),
         password: Joi.string().min(6).max(100).required(),
         role: Joi.string()
-            .valid("customer", "electrician", "plumber", "carpenter", "driver")
+            .valid("customer", "electrician", "plumber", "carpenter", "housemaid")
             .required(),
-    });
+        dateOfBirth: Joi.string().required(),
+  nidImageUrl: Joi.string().uri().required(),
+  nidImagePublicId: Joi.string().required(),
+
+    location: Joi.object({
+      lat: Joi.number().required(),
+      lng: Joi.number().required(),
+      address: Joi.string().min(3).required(),
+    }).required(),
+  });
 
     const { error } = schema.validate(req.body);
     if (error) {
+        console.error("Signup validation error:", error);
         return res.status(400).json({ message: "Bad request", error });
     }
 

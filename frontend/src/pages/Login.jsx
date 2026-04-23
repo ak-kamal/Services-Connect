@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import { handleError, handleSuccess } from '../utils'
+import LanguageToggle from '../components/LanguageToggle'
+import { useLanguage } from '../i18n/LanguageContext'
 
 function Login() {
   const [loginInfo, setLoginInfo] = useState({
@@ -11,6 +13,7 @@ function Login() {
 
   const navigate = useNavigate()
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  const { t } = useLanguage()
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -39,20 +42,27 @@ function Login() {
       })
 
       const result = await response.json()
-      const { success, message, jwtToken, name, role, error } = result
+      const { success, message, jwtToken, name, role, userId, location, error } = result
+
+      console.log("ROLE:", role);
 
       if (success) {
         handleSuccess(message)
         localStorage.setItem('token', jwtToken)
         localStorage.setItem('loggedInUser', name)
         localStorage.setItem('role', role)
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("location", JSON.stringify(location));
+        localStorage.setItem("userData", JSON.stringify({ name, role, userId, location }))
 
         setTimeout(() => {
-          if (role === 'customer') {
-            navigate('/')
-          } else {
-            navigate('/provider-profile')
-          }
+          if (role === 'admin') {
+              navigate('/admin-dashboard', { replace: true })
+            } else if (role === 'customer') {
+              navigate('/')
+            } else {
+              navigate('/provider-profile', { replace: true })
+            }
         }, 1000)
       } else if (error) {
         const details = error?.details?.[0]?.message || 'Something went wrong'
@@ -67,56 +77,57 @@ function Login() {
 
   return (
     <div className="hero min-h-screen bg-base-200 px-4">
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+        <LanguageToggle />
+      </div>
+
       <div className="hero-content w-full max-w-6xl flex-col lg:flex-row-reverse gap-10">
         <div className="text-center lg:text-left max-w-lg">
-          <h1 className="text-5xl font-bold text-primary">Services Connect</h1>
-          <p className="py-4 text-base-content/80">
-            Connect with trusted electricians, plumbers, carpenters and drivers
-            anytime you need.
-          </p>
+          <h1 className="text-5xl font-bold text-primary">{t('nav.brand')}</h1>
+          <p className="py-4 text-base-content/80">{t('login.tagline')}</p>
         </div>
 
         <div className="card w-full max-w-md bg-base-100 shadow-2xl">
           <div className="card-body">
-            <h2 className="card-title text-3xl justify-center">Login</h2>
+            <h2 className="card-title text-3xl justify-center">{t('login.title')}</h2>
 
             <form onSubmit={handleLogin} className="space-y-4 mt-4">
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Email</span>
+                  <span className="label-text">{t('login.email')}</span>
                 </label>
                 <input
                   type="email"
                   name="email"
                   value={loginInfo.email}
                   onChange={handleChange}
-                  placeholder="Enter your email"
+                  placeholder={t('login.emailPlaceholder')}
                   className="input input-bordered w-full"
                 />
               </div>
 
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">Password</span>
+                  <span className="label-text">{t('login.password')}</span>
                 </label>
                 <input
                   type="password"
                   name="password"
                   value={loginInfo.password}
                   onChange={handleChange}
-                  placeholder="Enter your password"
+                  placeholder={t('login.passwordPlaceholder')}
                   className="input input-bordered w-full"
                 />
               </div>
 
-              <button type="submit" className="btn btn-primary w-full">
-                Login
+              <button type="submit" className="btn btn-sm bg-green-500 hover:bg-green-600 text-white border-none">
+                {t('login.loginBtn')}
               </button>
 
               <p className="text-center text-sm">
-                Don&apos;t have an account?{' '}
+                {t('login.noAccount')}{' '}
                 <Link to="/signup" className="link link-primary font-semibold">
-                  Signup
+                  {t('common.signup')}
                 </Link>
               </p>
             </form>
