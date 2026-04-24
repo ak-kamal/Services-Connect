@@ -98,7 +98,7 @@ function SearchProvider() {
   const fetchProviders = async () => {
   try {
     const selectedTier = tiers[category]?.find(t => t.name === tier);
-    let url = `http://localhost:5000/api/providers?role=${role}&category=${category}&tier=${tier}&basePrice=${selectedTier.basePrice}`;
+    let url = `${import.meta.env.VITE_API_BASE_URL}/api/providers?role=${role}&category=${category}&tier=${tier}&basePrice=${selectedTier.basePrice}`;
 
     
       const user = JSON.parse(localStorage.getItem("userData"));

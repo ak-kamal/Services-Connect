@@ -26,11 +26,11 @@ function ProviderBooking() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const providerRes = await fetch(`http://localhost:5000/api/providers/${providerId}`);
+        const providerRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/providers/${providerId}`);
         const providerData = await providerRes.json();
         if (providerData.success) setProvider(providerData.provider);
 
-        const slotsRes = await fetch(`http://localhost:5000/api/slots?providerId=${providerId}`);
+        const slotsRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/slots?providerId=${providerId}`);
         const slotsData = await slotsRes.json();
         if (slotsData.success) {
           setSlots(slotsData.availableSlots);
@@ -41,7 +41,7 @@ function ProviderBooking() {
         }
 
         const offersRes = await fetch(
-          `http://localhost:5000/api/provider-slot-offers?providerId=${providerId}`
+          `${import.meta.env.VITE_API_BASE_URL}/api/provider-slot-offers?providerId=${providerId}`
         );
         const offersData = await offersRes.json();
         if (offersData.success) setSlotOffers(offersData.offers);
@@ -55,7 +55,7 @@ function ProviderBooking() {
   }, [providerId, t]);
 
   const refreshOffers = async () => {
-    const res = await fetch(`http://localhost:5000/api/provider-slot-offers?providerId=${providerId}`);
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/provider-slot-offers?providerId=${providerId}`);
     const data = await res.json();
     if (data.success) setSlotOffers(data.offers);
   };
@@ -93,7 +93,7 @@ function ProviderBooking() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/offer', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/offer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -144,7 +144,7 @@ function ProviderBooking() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/recurring-booking', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/recurring-booking`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

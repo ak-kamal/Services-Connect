@@ -53,7 +53,7 @@ function AdminDashboard() {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/complaints", {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/complaints`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -74,7 +74,7 @@ function AdminDashboard() {
   const fetchAlerts = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/alerts", {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/alerts`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -92,7 +92,7 @@ function AdminDashboard() {
 
   const markAlertRead = async (alertId) => {
     try {
-      await fetch(`http://localhost:5000/api/alerts/${alertId}/read`, {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/alerts/${alertId}/read`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

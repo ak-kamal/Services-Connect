@@ -74,7 +74,7 @@ const handleReview = (offerId, value) => {
     }
 
     // Save rating first
-    await fetch(`http://localhost:5000/api/offer/${offerId}/add-review`, {
+    await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/offer/${offerId}/add-review`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ const handleReview = (offerId, value) => {
     });
 
     // Create Stripe session
-    const res = await fetch(`http://localhost:5000/api/payment/create-checkout-session`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/payment/create-checkout-session`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ offerId })
@@ -112,7 +112,7 @@ const handleReview = (offerId, value) => {
       setLoadingOffers(true);
 
       const res = await fetch(
-        `http://localhost:5000/api/customer-offers?customerId=${customerId}`
+        `${import.meta.env.VITE_API_BASE_URL}/api/customer-offers?customerId=${customerId}`
       );
       const data = await res.json();
 
@@ -134,7 +134,7 @@ const handleReview = (offerId, value) => {
 const handleWorkDone = async (offerId) => {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/offer/${offerId}/complete`,
+      `${import.meta.env.VITE_API_BASE_URL}/api/offer/${offerId}/complete`,
       {
         method: 'PUT',
         headers: {

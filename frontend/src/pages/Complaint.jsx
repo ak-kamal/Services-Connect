@@ -26,7 +26,7 @@ function Complaint() {
       setLoading(true);
 
       const res = await fetch(
-        `http://localhost:5000/api/providers?role=${selectedRole}`
+        `${import.meta.env.VITE_API_BASE_URL}/api/providers?role=${selectedRole}`
       );
       const data = await res.json();
 
@@ -62,7 +62,7 @@ function Complaint() {
         formData.append('file', file);
       }
 
-      const res = await fetch('http://localhost:5000/api/complaints', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/complaints`, {
         method: 'POST',
         body: formData,
       });
