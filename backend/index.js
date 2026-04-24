@@ -40,7 +40,14 @@ const io = new Server(httpServer, {
   },
 });
 
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://services-connect-zeta.vercel.app/"
+  ],
+  credentials: true
+}));
+
 //  1. RAW webhook FIRST (only this route)
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 
