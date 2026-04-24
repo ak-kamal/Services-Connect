@@ -49,7 +49,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 
 //  1. RAW webhook FIRST (only this route)
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
