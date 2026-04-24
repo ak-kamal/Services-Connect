@@ -11,7 +11,7 @@ import "./db.js";
 import "./cronJobs/slotCron.js";
 
 import authRouter from "./routes/AuthRoutes.js";
-import providerRouter from "./routes/ProviderRoutes.js";
+import providerRouter from "./routes/providerRoutes.js";
 import offerRouter from "./routes/offerRoutes.js";
 import slotRouter from "./routes/slotRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
