@@ -40,13 +40,16 @@ const io = new Server(httpServer, {
   },
 });
 
-app.use(cors({
+const corsOptions = {
   origin: [
     "http://localhost:5173",
-    "https://services-connect-zeta.vercel.app/"
+    "https://services-connect-git-integrated-branch-ak-kamals-projects.vercel.app"
   ],
   credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 //  1. RAW webhook FIRST (only this route)
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
