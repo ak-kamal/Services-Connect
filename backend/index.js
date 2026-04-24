@@ -11,7 +11,7 @@ import "./db.js";
 import "./cronJobs/slotCron.js";
 
 import authRouter from "./routes/AuthRoutes.js";
-import providerRouter from "./routes/ProviderRoutes.js";
+import providerRouter from "./routes/providerRoutes.js";
 import offerRouter from "./routes/offerRoutes.js";
 import slotRouter from "./routes/slotRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
@@ -40,7 +40,14 @@ const io = new Server(httpServer, {
   },
 });
 
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://services-connect-zeta.vercel.app/"
+  ],
+  credentials: true
+}));
+
 //  1. RAW webhook FIRST (only this route)
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 
